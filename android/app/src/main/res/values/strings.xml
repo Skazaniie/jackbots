@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android-side texts. The panel itself has its own language setting (Settings → Interface language). -->
+<resources>
+    <string name="starting">Starting the bots…</string>
+    <string name="server_failed">The bot server didn\'t start:\n\n%1$s</string>
+    <string name="server_timeout">The bot server didn\'t respond within a minute. Close the app and open it again.</string>
+    <string name="channel_bots">Bots</string>
+    <string name="notif_title">JackBOTS is running</string>
+    <string name="notif_text">The bots can play while this notification is shown</string>
+    <string name="notif_stop">Stop</string>
+</resources>

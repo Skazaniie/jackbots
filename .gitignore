@@ -1,0 +1,23 @@
+# personal settings and API keys — never commit
+config/
+logs/
+# environment and build output
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+# local materials, backups and transfers
+ref/
+design/
+backup-*/
+_incoming/
+*.spec.bak
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+*.jks
+*.keystore

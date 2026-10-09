@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+    <stop offset="0" stop-color="#ff7a45"/><stop offset=".55" stop-color="#f2405a"/><stop offset="1" stop-color="#c81f5a"/>
+  </linearGradient>
+  <radialGradient id="glow" cx=".3" cy=".18" r=".75">
+    <stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#f3ead3"/>
+  </linearGradient>
+  <radialGradient id="ball" cx=".35" cy=".35" r=".7">
+    <stop offset="0" stop-color="#fff6a8"/><stop offset=".5" stop-color="#ffd23a"/><stop offset="1" stop-color="#e59a00"/>
+  </radialGradient>
+  <filter id="drop" x="-20%" y="-20%" width="140%" height="150%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="18"/><feOffset dy="26"/>
+    <feComponentTransfer><feFuncA type="linear" slope=".38"/></feComponentTransfer>
+    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <clipPath id="sq"><rect width="1024" height="1024" rx="230"/></clipPath>
+</defs><rect width="1024" height="1024" fill="url(#bg)"/>
+  <g stroke="#fff" stroke-opacity=".10" stroke-width="6"><line x1="0" y1="96" x2="1024" y2="96"/><line x1="0" y1="184" x2="1024" y2="184"/><line x1="0" y1="272" x2="1024" y2="272"/><line x1="0" y1="360" x2="1024" y2="360"/><line x1="0" y1="448" x2="1024" y2="448"/><line x1="0" y1="536" x2="1024" y2="536"/><line x1="0" y1="624" x2="1024" y2="624"/><line x1="0" y1="712" x2="1024" y2="712"/><line x1="0" y1="800" x2="1024" y2="800"/><line x1="0" y1="888" x2="1024" y2="888"/><line x1="0" y1="976" x2="1024" y2="976"/></g>
+  <line x1="150" y1="0" x2="150" y2="1024" stroke="#ffd0d0" stroke-opacity=".28" stroke-width="8"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/></svg>

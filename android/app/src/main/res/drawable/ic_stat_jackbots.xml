@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Значок уведомления: белый силуэт робота (Android сам красит его в цвет системы). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd"
+        android:pathData="M10.4,3a1.6,1.6 0 1,0 3.2,0a1.6,1.6 0 1,0 -3.2,0Z M11.3,4.4H12.7V7H11.3Z
+            M7.5,7H16.5A3.5,3.5 0 0,1 20,10.5V15.5A3.5,3.5 0 0,1 16.5,19H7.5A3.5,3.5 0 0,1 4,15.5V10.5A3.5,3.5 0 0,1 7.5,7Z
+            M7.2,12.3a1.8,1.8 0 1,0 3.6,0a1.8,1.8 0 1,0 -3.6,0Z M13.2,12.3a1.8,1.8 0 1,0 3.6,0a1.8,1.8 0 1,0 -3.6,0Z
+            M9,15.4H15A3,2.4 0 0,1 9,15.4Z
+            M2,10.5H3.5V15.5H2Z M20.5,10.5H22V15.5H20.5Z" />
+</vector>

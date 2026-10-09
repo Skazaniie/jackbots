@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="starting">Запускаю ботов…</string>
+    <string name="server_failed">Сервер ботов не запустился:\n\n%1$s</string>
+    <string name="server_timeout">Сервер ботов не ответил за минуту. Закрой приложение и открой снова.</string>
+    <string name="channel_bots">Боты</string>
+    <string name="notif_title">JackBOTS работает</string>
+    <string name="notif_text">Боты могут играть, пока висит это уведомление</string>
+    <string name="notif_stop">Остановить</string>
+</resources>

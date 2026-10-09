@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1e4">
+  <title>JackBOTS</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/AmaticSC-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/Caveat-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/Neucha-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <div class="desk" aria-hidden="true"></div>
+
+  <div class="app">
+    <aside class="sidebar paper-grain">
+      <a class="logo" href="#/game" aria-label="JackBOTS — home">
+        Jack<span>BOTS</span>
+        <svg viewBox="0 0 230 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 60 2, 120 18, 226 6"/></svg>
+      </a>
+      <nav class="menu" id="menu" aria-label="Sections"></nav>
+      <div class="side-note" id="side-note" aria-live="polite"><div class="tape"></div></div>
+    </aside>
+
+    <main class="view" id="view"></main>
+  </div>
+
+  <div class="offline-banner" id="offline" hidden>No connection to the server, reconnecting…</div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+/* ==========================================================================
+   JackBOTS · layout.css
+   Каркас: боковое меню на ПК, шапка + нижнее меню на телефоне.
+   Каркас рендерится один раз; при переходах меняется только <main>.
+   ========================================================================== */
+
+.app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; min-height: 100dvh; }
+
+/* ---------- Боковое меню (ПК) ---------- */
+.sidebar {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column;
+  padding: 34px 26px 26px; background: #fffdf6; box-shadow: 6px 0 18px -8px rgba(0, 0, 0, .25); z-index: 5;
+}
+/* дырочки от пружины по правому краю */
+.sidebar::before { content: ''; position: absolute; top: 0; bottom: 0; right: -14px; width: 28px; background: radial-gradient(circle, var(--desk) 0 6px, transparent 7px) 0 0 / 28px 34px repeat-y; }
+
+.logo { position: relative; display: inline-block; align-self: flex-start; margin-bottom: 44px; font: 700 56px/.9 var(--font-title); letter-spacing: 2px; white-space: nowrap; }
+.logo span { color: var(--red); }
+.logo svg { position: absolute; left: -4px; bottom: -12px; width: calc(100% + 8px); height: 18px; overflow: visible; }
+.logo path { stroke: var(--red); stroke-width: 4; fill: none; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 260; animation: draw-line 1.1s .3s forwards; }
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+
+.menu { display: grid; gap: 4px; }
+.menu__item { position: relative; display: flex; align-items: center; gap: 12px; padding: 7px 10px; border-radius: 10px; font: 700 28px/1 var(--font-hand); transition: background-color .2s, color .2s; }
+.menu__item:hover { background: rgba(255, 214, 0, .25); }
+.menu__icon { flex: none; display: grid; place-items: center; width: 34px; height: 34px; background: #fff; border: 2.5px solid var(--ink); border-radius: 6px 9px 5px 8px; font-size: 19px; transition: box-shadow .25s, border-color .25s; }
+.menu__short { display: none; }
+/* подчёркивание активного пункта «дорисовывается» */
+.menu__item::after { content: ''; position: absolute; left: 56px; right: 18px; bottom: 1px; height: 4px; border-radius: 4px; background: var(--red); transform: rotate(-1.5deg) scaleX(0); transform-origin: left; transition: transform .35s ease; }
+.menu__item.is-active { color: var(--red); }
+.menu__item.is-active::after { transform: rotate(-1.5deg) scaleX(1); }
+.menu__item.is-active .menu__icon { border-color: var(--red); box-shadow: 3px 3px 0 var(--red); }
+
+/* стикер внизу меню: состояние сессии */
+.side-note { margin-top: auto; padding: 18px 16px 14px; background: var(--note-yellow); box-shadow: var(--shadow-note); transform: rotate(-2deg); font: 700 20px/1.2 var(--font-hand); position: relative; }
+.side-note .tape { width: 70px; margin-left: -35px; }
+.side-note b { display: block; font-size: 24px; }
+.live-dot { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; background: var(--ink-soft); vertical-align: 1px; }
+.live-dot.is-on { background: var(--red); animation: blink 1.2s infinite; }
+.live-dot.is-off { background: #b4bcc4; }
+@keyframes blink { 50% { opacity: .25; } }
+
+/* ---------- Контент ---------- */
+.view { padding: 40px 54px 60px 70px; max-width: 1360px; width: 100%; }
+.view.is-entering { animation: page-in .35s ease; }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } }
+.page-hello { margin-bottom: 22px; font: 700 30px/1.15 var(--font-hand); color: var(--blue); transform: rotate(-1deg); transform-origin: left; }
+.offline-banner { position: fixed; top: 14px; left: 50%; transform: translateX(-50%) rotate(-1deg); z-index: 90; padding: 8px 18px; background: var(--note-pink); box-shadow: var(--shadow-note); font: 700 21px var(--font-hand); color: #9b1c22; }
+
+/* ==========================================================================
+   Телефон и узкие окна
+   ========================================================================== */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .app { display: block; }
+  .sidebar { position: static; height: auto; padding: 22px 20px 0 34px; background: none; box-shadow: none; }
+  .sidebar::before, .side-note { display: none; }
+  .logo { margin-bottom: 14px; font-size: 50px; }
+
+  /* меню превращается в нижнюю панель — как в мобильном макете */
+  .menu {
+    position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 50;
+    display: flex; gap: 0; padding: 8px; background: var(--paper);
+    border: 3px solid var(--ink); border-radius: 255px 20px 225px 20px / 20px 225px 20px 255px; box-shadow: 4px 5px 0 var(--ink);
+  }
+  .menu__item { flex: 1; min-width: 0; flex-direction: column; gap: 3px; padding: 4px 0; font-size: 18px; border-radius: 12px; }
+  .menu__item:hover { background: none; }
+  .menu__icon { width: auto; height: auto; border: 0; background: none; font-size: 22px; transition: transform .3s var(--ease-pop); }
+  .menu__item.is-active .menu__icon { box-shadow: none; transform: rotate(-10deg) scale(1.15); }
+  .menu__label { display: none; }
+  .menu__short { display: block; }
+  .menu__item::after { position: static; width: 40px; height: 4px; margin: 2px auto 0; transform: rotate(-3deg) scaleX(0); transform-origin: center; }
+  .menu__item.is-active::after { transform: rotate(-3deg) scaleX(1); }
+
+  .view { padding: 4px 18px calc(var(--nav-h) + 40px + env(safe-area-inset-bottom)) 34px; }
+  .page-hello { font-size: 24px; margin-bottom: 16px; }
+  .toasts { left: 14px; right: 14px; width: auto; bottom: calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
