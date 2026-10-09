@@ -1,8 +1,8 @@
-"""Клиент для любого OpenAI-совместимого API с упором на низкую задержку.
+"""Client for any OpenAI-compatible API, focused on low latency.
 
-- одно постоянное keep-alive соединение на провайдера + прогрев перед игрой;
-- стриминг: для однострочных ответов обрываем генерацию на первом переносе строки;
-- самонастройка: если модель не принимает max_tokens/temperature, запоминаем и повторяем.
+- one persistent keep-alive connection per provider + warm-up before the game;
+- streaming: for one-line answers generation is cut at the first line break;
+- self-tuning: if the model doesn't accept max_tokens/temperature, remember that and retry.
 """
 import asyncio
 import json
@@ -42,7 +42,7 @@ class LLM:
             await c.aclose()
 
     async def warmup(self, p):
-        """Открываем TLS-соединение заранее, чтобы первый ответ в игре не тратил на это время."""
+        """Open the TLS connection in advance so the first answer in the game doesn't spend time on it."""
         try:
             await self._client(p).get("models", timeout=5)
         except Exception:
@@ -69,7 +69,7 @@ class LLM:
         if stream and "no_stream" not in q:
             body["stream"] = True
         body.update(p.get("extra_body") or {})
-        body.update(extra_body or {})  # настройки конкретного бота/модели, напр. reasoning_effort
+        body.update(extra_body or {})  # settings of a specific bot/model, e.g. reasoning_effort
         return body
 
     def _learn(self, p, model, text):
@@ -86,14 +86,14 @@ class LLM:
 
     async def chat(self, p, model, messages, temperature=0.9, max_tokens=60, one_line=True, deadline_s=None,
                    extra_body=None):
-        """Возвращает dict(text, ms, ttft, tokens). Бросает LLMError."""
+        """Returns dict(text, ms, ttft, tokens). Raises LLMError."""
         stream = bool(p.get("stream", True))
         if p.get("max_tokens"):
             max_tokens = int(p["max_tokens"])
         attempts = 3 if p.get("retry", True) else 1
         t0 = time.perf_counter()
         last = None
-        for _ in range(attempts + 2):  # +2 попытки на самонастройку параметров
+        for _ in range(attempts + 2):  # +2 attempts for parameter self-tuning
             if deadline_s and time.perf_counter() - t0 > deadline_s:
                 break
             try:
@@ -152,19 +152,19 @@ class LLM:
                         text += piece
                         chunks += 1
                 if one_line and "\n" in _strip_think(text).strip():
-                    break  # однострочный ответ уже есть — не ждём хвост
+                    break  # the one-line answer is ready, don't wait for the tail
         ms = int((time.perf_counter() - t0) * 1000)
         return {"text": _clean(text, one_line), "ms": ms, "ttft": ttft or ms, "tokens": chunks}
 
 
-# блоки «размышлений» в тексте ответа: <think> (DeepSeek/Qwen), <thinking>, <mm:think> (MiniMax)
+# "thinking" blocks in the answer text: <think> (DeepSeek/Qwen), <thinking>, <mm:think> (MiniMax)
 _THINK_BLOCK = re.compile(r"<((?:mm:)?think(?:ing)?)>.*?</\1>", re.S)
 _THINK_OPEN = re.compile(r"<(?:mm:)?think(?:ing)?>")
 
 
 def _strip_think(t):
     t = _THINK_BLOCK.sub("", t)
-    m = _THINK_OPEN.search(t)  # незакрытый блок — модель ещё думает, ответа пока нет
+    m = _THINK_OPEN.search(t)  # unclosed block: the model is still thinking, no answer yet
     return t[:m.start()] if m else t
 
 

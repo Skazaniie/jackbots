@@ -1,4 +1,4 @@
-"""Запуск панели JackBOTS на Android: тот же app/ что и на ПК, но FastAPI заменён шимом на Starlette."""
+"""Runs the JackBOTS panel on Android: the same app/ as on PC, but FastAPI is replaced by a Starlette shim."""
 import os
 import sys
 import traceback
@@ -7,13 +7,13 @@ _server = None
 
 
 def run(root, port):
-    """Блокирует поток, пока сервер работает. root — распакованная папка с app/, web/, assets/, config/."""
+    """Blocks the thread while the server runs. root is the unpacked folder with app/, web/, assets/, config/."""
     global _server
     import uvicorn
 
     os.makedirs(os.path.join(root, "logs"), exist_ok=True)
     log = open(os.path.join(root, "logs", "server.log"), "a", encoding="utf-8", buffering=1)
-    sys.stderr = log  # ошибки сервера пишем в файл: logcat на телефоне пользователю недоступен
+    sys.stderr = log  # server errors go to a file: the user can't read logcat on the phone
     if root not in sys.path:
         sys.path.insert(0, root)
     os.chdir(root)

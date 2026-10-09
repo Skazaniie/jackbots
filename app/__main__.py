@@ -1,4 +1,4 @@
-"""Запуск панели JackBOTS: `python -m app [--no-browser]` или собранный JackBOTS.exe."""
+"""Starts the JackBOTS panel: `python -m app [--no-browser]` or the built JackBOTS.exe."""
 import sys
 import threading
 import webbrowser
@@ -14,7 +14,7 @@ def main():
     if "--no-browser" not in sys.argv:
         threading.Timer(1.5, webbrowser.open, args=(f"http://{HOST}:{PORT}/",)).start()
     print(f"JackBOTS: panel at http://{HOST}:{PORT}/ (close this window to stop)", flush=True)
-    # Объект app, а не строка "app.main:app": так работает и в exe (PyInstaller не видит строковых импортов).
+    # The app object, not the string "app.main:app": this also works in the exe (PyInstaller doesn't see string imports).
     uvicorn.run(app, host=HOST, port=PORT, log_level="warning")
 
 

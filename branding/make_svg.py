@@ -1,6 +1,6 @@
-"""Исходник иконки JackBOTS: пишет icon.svg, icon-foreground.svg, icon-background.svg рядом с собой.
+"""JackBOTS icon source: writes icon.svg, icon-foreground.svg, icon-background.svg next to itself.
 
-После правок: python branding/make_svg.py && node tools/build_icons.js
+After editing: python branding/make_svg.py && node tools/build_icons.js
 """
 from pathlib import Path
 
@@ -38,7 +38,7 @@ def background(rounded=True):
     return f'<g clip-path="url(#sq)">{body}</g>' if rounded else body
 
 def robot():
-    # Робот-стикер: голова из бумаги, обводка «ручкой», скотч, антенна.
+    # Sticker robot: paper head, "pen" outline, tape, antenna.
     return f'''<g filter="url(#drop)">
   <g transform="rotate(-7 512 560)">
     <line x1="512" y1="300" x2="512" y2="200" stroke="{INK}" stroke-width="34" stroke-linecap="round"/>
@@ -63,10 +63,10 @@ def robot():
 </g>'''
 
 def svg(content, size=1024):
-    """Полный SVG-документ 1024×1024."""
+    """Full 1024x1024 SVG document."""
     return f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 1024 1024">{defs()}{content}</svg>'
 
 (HERE / "icon.svg").open("w").write(svg(background() + robot()))
 (HERE / "icon-background.svg").open("w").write(svg(background(rounded=False)))
-# Адаптивная иконка: безопасная зона 66% — уменьшаем робота вокруг центра.
+# Adaptive icon: 66% safe zone, so shrink the robot around the center.
 (HERE / "icon-foreground.svg").open("w").write(svg(f'<g transform="translate(512 530) scale(.84) translate(-512 -512)">{robot()}</g>'))

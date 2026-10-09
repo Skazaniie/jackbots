@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-/** Панель JackBOTS в WebView; сам сервер живёт в BotService. */
+/** JackBOTS panel in a WebView; the server itself lives in BotService. */
 public class MainActivity extends Activity {
     private static WeakReference<MainActivity> current = new WeakReference<>(null);
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
                     ui.post(this::showPanel);
                     return;
                 } catch (Exception ignored) {
-                    // сервер ещё стартует
+                    // the server is still starting
                 }
                 if (System.currentTimeMillis() - t0 > 60000) {
                     ui.post(() -> status.setText(R.string.server_timeout));
@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
         if (web != null && web.canGoBack()) {
             web.goBack();
         } else {
-            moveTaskToBack(true);  // не убиваем приложение: боты продолжают играть в фоне
+            moveTaskToBack(true);  // don't kill the app: bots keep playing in the background
         }
     }
 }

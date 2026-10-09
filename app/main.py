@@ -1,4 +1,4 @@
-"""JackBOTS — ИИ-боты для Jackbox. Запуск: python -m app (или start.bat), панель http://127.0.0.1:4791"""
+"""JackBOTS: AI bots for Jackbox. Run: python -m app (or start.bat), panel at http://127.0.0.1:4791"""
 import asyncio
 import contextlib
 import time
@@ -29,9 +29,9 @@ def index():
     return RedirectResponse("/ui/")
 
 
-# ---------------- конфиги ----------------
+# ---------------- configs ----------------
 def _samples(lang):
-    """Примеры переменных для превью: и под внутренними (русскими), и под английскими именами."""
+    """Sample variables for the preview, under both the internal (Russian) and English names."""
     out = {}
     for game, values in SAMPLES[lang].items():
         v = dict(values)
@@ -121,7 +121,7 @@ def _bot(bot_id):
 
 
 def _request(bot_id, game, phase, vars_, lang):
-    """Сообщения для модели как в игре. lang не задан — версия игры из настроек (auto: по тексту задания)."""
+    """Messages for the model as in the game. If lang is not set, the game version comes from settings (auto: by the task text)."""
     if game not in GAMES:
         raise HTTPException(400, f"game: {', '.join(GAMES)}")
     vars_ = {VAR_ALIASES.get(k, k): v for k, v in (vars_ or {}).items()}
@@ -146,7 +146,7 @@ def preview(bot_id: str = Body(...), game: str = Body(...), phase: str = Body(..
 @app.post("/api/ask")
 async def ask(bot_id: str = Body(...), game: str = Body(...), phase: str = Body(...), vars: dict | None = Body(None),
               lang: str | None = Body(None)):
-    """Один запрос к модели бота — для «Теста моделей» и проверки промта."""
+    """One request to the bot's model, for the model test and prompt checks."""
     cfg, msgs, ph, lang = _request(bot_id, game, phase, vars, lang)
     p = store.provider(cfg["provider"])
     if not p:
@@ -159,7 +159,7 @@ async def ask(bot_id: str = Body(...), game: str = Body(...), phase: str = Body(
         return {"ok": False, "error": str(e)}
 
 
-# ---------------- сессия ----------------
+# ---------------- session ----------------
 @app.get("/api/session")
 def get_session():
     return session.status()

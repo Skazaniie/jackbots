@@ -1,6 +1,6 @@
 /**
- * Страница «Тест»: одно задание всем включённым ботам, настоящие запросы к API.
- * Дорожки показывают, кто успевает ответить до лимита (красная линия финиша).
+ * "Test" page: one task for all enabled bots, real API requests.
+ * Lanes show who manages to answer before the limit (the red finish line).
  */
 import { api } from '../api.js';
 import { providerIcon, secs } from '../catalog.js';
@@ -8,7 +8,7 @@ import { $, $$, html, refs } from '../dom.js';
 import { lang as uiLang, t } from '../i18n.js';
 import { toastError, withBusy } from '../ui.js';
 
-const SCALE_OVER_LIMIT = 1.35;   // шкала дорожки чуть длиннее лимита, чтобы опоздавших было видно
+const SCALE_OVER_LIMIT = 1.35;   // the lane scale is a bit longer than the limit so late bots are visible
 
 const template = () => html`
   <header class="section-head"><h2><span>${t('Model test')}</span></h2><span class="hint">${t('who answers in time')}</span></header>
@@ -34,7 +34,7 @@ export default {
     const r = refs(root);
     const on = (el, type, fn) => el.addEventListener(type, fn, { signal });
     let meta, bots = [], providers = [];
-    let version = 'en';   // версия игры: промты и пример задания берутся для неё
+    let version = 'en';   // game version: prompts and the sample task are taken for it
     const limitMs = () => (Number(r.limit.value) || 3) * 1000;
 
     function renderLanes() {
@@ -75,7 +75,7 @@ export default {
       const lanes = new Map($$('.lane', r.lanes).map(l => [l.dataset.bot, l]));
       const t0 = performance.now();
 
-      // Анимация бега: каждый кадр двигаем бегунов, пока все не финишируют.
+      // Running animation: move the runners every frame until everyone finishes.
       const frame = () => {
         if (signal.aborted) return;
         const now = performance.now() - t0;

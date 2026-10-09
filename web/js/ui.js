@@ -1,9 +1,9 @@
-/** Общие элементы интерфейса: уведомления, подтверждение, «занятая» кнопка. */
+/** Shared UI elements: toasts, confirm dialog, "busy" button. */
 import { $, html, toNode } from './dom.js';
 import { t } from './i18n.js';
 
 /**
- * Показать уведомление-стикер.
+ * Show a sticker toast.
  * @param {string} text
  * @param {'ok'|'bad'|''} kind
  */
@@ -15,11 +15,11 @@ export function toast(text, kind = '') {
   node.addEventListener('transitionend', () => node.remove());
 }
 
-/** Показать ошибку из исключения. */
+/** Show an error from an exception. */
 export const toastError = error => toast(error?.message || String(error), 'bad');
 
 /**
- * Бумажный диалог подтверждения вместо системного confirm().
+ * A paper confirm dialog instead of the system confirm().
  * @returns {Promise<boolean>}
  */
 export function confirmDialog({ text, ok = t('Yes'), cancel = t('Cancel'), danger = false }) {
@@ -42,8 +42,8 @@ export function confirmDialog({ text, ok = t('Yes'), cancel = t('Cancel'), dange
 }
 
 /**
- * Выполнить действие, блокируя кнопку на время запроса (защита от двойного клика).
- * Ошибка показывается уведомлением и не пробрасывается дальше.
+ * Run an action while blocking the button during the request (double-click protection).
+ * The error is shown as a toast and not rethrown.
  */
 export async function withBusy(button, action) {
   if (button.classList.contains('is-busy')) return undefined;

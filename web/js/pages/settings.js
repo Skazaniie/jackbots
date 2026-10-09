@@ -1,6 +1,6 @@
 /**
- * Страница «Настройки»: язык панели, версия игры (английская jackbox.tv / русская), сервер ecast, лог трафика.
- * Смена языка панели применяется перезагрузкой страницы — так все тексты гарантированно переводятся.
+ * "Settings" page: panel language, game version (English jackbox.tv / Russian), ecast server, traffic log.
+ * Changing the panel language reloads the page, so all texts are guaranteed to be translated.
  */
 import { api } from '../api.js';
 import { clone, html, refs, sameJSON } from '../dom.js';
@@ -48,7 +48,7 @@ const template = () => html`
 export default {
   id: 'settings', icon: '⚙️',
   get title() { return t('Settings'); },
-  get short() { return uiLang() === 'ru' ? 'Опции' : t('Settings'); },   // короткая подпись нижнего меню
+  get short() { return uiLang() === 'ru' ? 'Опции' : t('Settings'); },   // short label for the bottom menu
 
   async mount(root, { signal }) {
     root.innerHTML = String(template());
@@ -90,7 +90,7 @@ export default {
       draft = clone(saved);
       if (saved.ui_language !== uiLang()) {
         setLang(saved.ui_language);
-        location.reload();               // перерисовать весь интерфейс на новом языке
+        location.reload();               // redraw the whole UI in the new language
         return;
       }
       render();

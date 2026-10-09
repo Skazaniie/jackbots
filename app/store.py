@@ -1,4 +1,4 @@
-"""Конфиги приложения: config/*.json. Создаются из значений по умолчанию при первом запуске."""
+"""App configs: config/*.json. Created from defaults on first run."""
 import copy
 import json
 import sys
@@ -8,15 +8,15 @@ from pathlib import Path
 from .prompts import LANGS, PROMPTS
 
 if getattr(sys, "frozen", False):
-    # Собранный exe (PyInstaller): ресурсы распакованы во временную папку,
-    # а настройки и логи лежат рядом с exe — так они переживают обновление программы.
+    # Built exe (PyInstaller): resources are unpacked into a temp folder,
+    # while settings and logs live next to the exe, so they survive program updates.
     RESOURCES = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
     ROOT = Path(sys.executable).resolve().parent
 else:
     RESOURCES = ROOT = Path(__file__).resolve().parent.parent
-CFG = ROOT / "config"           # изменяемые настройки (ключи API — только здесь)
+CFG = ROOT / "config"           # editable settings (API keys live only here)
 LOGS = ROOT / "logs"
-DATA = RESOURCES / "data"       # справочные данные игр, только чтение
+DATA = RESOURCES / "data"       # game reference data, read-only
 WEB = RESOURCES / "web"
 ASSETS = RESOURCES / "assets"
 _lock = threading.Lock()
@@ -50,13 +50,13 @@ DEFAULT_BOTS = [
 ]
 BOT_FIELDS = {"enabled": True, "games": {"quiplash2": True, "pollposition": True, "triviadeath2": True}}
 
-# ui_language — язык панели; game_language — версия игры: "auto" (по тексту игры), "en" (jackbox.tv), "ru" (jackbox.fun)
+# ui_language is the panel language; game_language is the game version: "auto" (by the game text), "en" (jackbox.tv), "ru" (jackbox.fun)
 DEFAULT_SETTINGS = {"ui_language": "en", "game_language": "auto", "ecast_host": "ecast.jackboxgames.com",
                     "memory_rounds": 6,
                     "answer_delay_ms": [0, 0], "log_traffic": True}
 LANGUAGE_MODES = ("auto", *LANGS)
 
-# промты каждой версии игры — в своём файле: prompts.json (русская) и prompts_en.json (английская)
+# each game version has its own prompts file: prompts.json (Russian) and prompts_en.json (English)
 PROMPT_FILES = {"ru": "prompts", "en": "prompts_en"}
 DEFAULTS = {"providers": DEFAULT_PROVIDERS, "bots": DEFAULT_BOTS, "settings": DEFAULT_SETTINGS,
             **{name: PROMPTS[lang] for lang, name in PROMPT_FILES.items()}}
@@ -115,12 +115,12 @@ def save(name, data):
 
 
 def prompts(lang):
-    """Промты версии игры lang ("ru" / "en")."""
+    """Prompts for game version lang ("ru" / "en")."""
     return load(PROMPT_FILES.get(lang, "prompts"))
 
 
 def default_prompt(lang, game, phase):
-    """Промт по умолчанию: phase "system" — общий системный, иначе фаза игры."""
+    """Default prompt: phase "system" is the shared system prompt, otherwise a game phase."""
     base = PROMPTS.get(lang, PROMPTS["ru"])
     return copy.deepcopy(base["system"] if game == "system" or phase == "system" else base.get(game, {}).get(phase))
 

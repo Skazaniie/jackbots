@@ -1,11 +1,11 @@
 /**
- * Мини-набор DOM-утилит без фреймворков.
+ * A tiny set of DOM utilities, no frameworks.
  *
- * html`...`   — шаблон с автоматическим экранированием подстановок (защита от XSS).
- * raw(str)    — вставить строку как есть (только для уже безопасной разметки).
- * syncList()  — обновить список по ключам: новые элементы получают класс .is-new
- *               (на нём висят CSS-анимации появления), старые обновляются на месте,
- *               поэтому анимации не перезапускаются при каждом обновлении данных.
+ * html`...`   — template with automatic escaping of substitutions (XSS protection).
+ * raw(str)    — insert a string as is (only for markup that is already safe).
+ * syncList()  — update a list by keys: new elements get the .is-new class
+ *               (CSS appear animations hang on it), old ones are updated in place,
+ *               so animations don't restart on every data update.
  */
 
 class SafeHTML {
@@ -33,36 +33,36 @@ export function html(strings, ...values) {
 export const $ = (selector, root = document) => root.querySelector(selector);
 export const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-/** Создать один элемент из разметки. */
+/** Create a single element from markup. */
 export function toNode(markup) {
   const t = document.createElement('template');
   t.innerHTML = String(markup).trim();
   return t.content.firstElementChild;
 }
 
-/** Собрать все элементы с атрибутом data-ref в объект { имя: элемент }. */
+/** Collect all elements with a data-ref attribute into an object { name: element }. */
 export function refs(root) {
   return Object.fromEntries($$('[data-ref]', root).map(n => [n.dataset.ref, n]));
 }
 
-/** Пометить элемент новым, чтобы сыграла CSS-анимация появления, и снять метку после неё. */
+/** Mark an element as new so the CSS appear animation plays, and remove the mark after it. */
 function markNew(node) {
   node.classList.add('is-new');
   const done = e => { if (e.target === node) { node.classList.remove('is-new'); node.removeEventListener('animationend', done); } };
   node.addEventListener('animationend', done);
-  setTimeout(() => node.classList.remove('is-new'), 1200); // если анимации нет (reduced motion)
+  setTimeout(() => node.classList.remove('is-new'), 1200); // in case there is no animation (reduced motion)
 }
 
 /**
- * Синхронизировать детей контейнера с массивом данных.
+ * Sync a container's children with a data array.
  * @param {Element} container
  * @param {Array} items
  * @param {object} o
- * @param {(item) => string} o.key       уникальный ключ элемента
- * @param {(item) => SafeHTML} o.render  разметка одного элемента (корень — один тег)
- * @param {(node, item) => void} [o.update] точечное обновление существующего узла;
- *        если не задано — узел перерисовывается только при изменении разметки
- * @param {SafeHTML} [o.empty]           что показать, когда список пуст
+ * @param {(item) => string} o.key       unique element key
+ * @param {(item) => SafeHTML} o.render  markup of one element (a single root tag)
+ * @param {(node, item) => void} [o.update] targeted update of an existing node;
+ *        if not set, the node is redrawn only when its markup changes
+ * @param {SafeHTML} [o.empty]           what to show when the list is empty
  */
 export function syncList(container, items, { key, render, update, empty }) {
   const existing = new Map();
@@ -103,14 +103,14 @@ export function syncList(container, items, { key, render, update, empty }) {
   if (!items.length && empty) container.innerHTML = String(empty);
 }
 
-/** Стабильный «случайный» наклон по ключу: при перерисовке карточка не дёргается. */
+/** A stable "random" tilt by key: the card doesn't jump on redraw. */
 export function hash(seed) {
   let h = 0;
   for (const ch of String(seed)) h = (h * 31 + ch.charCodeAt(0)) | 0;
   return Math.abs(h);
 }
 export const tilt = (seed, max = 2) => ((hash(seed) % 1000) / 1000 * 2 - 1) * max;
-/** Стабильно выбрать элемент массива по ключу (например, цвет стикера). */
+/** Stably pick an array element by key (e.g. a sticker color). */
 export const pick = (list, seed) => list[hash(seed) % list.length];
 
 export function debounce(fn, ms = 300) {
@@ -120,9 +120,9 @@ export function debounce(fn, ms = 300) {
   return wrapped;
 }
 
-/** Глубокое копирование простых JSON-данных (конфиги). */
+/** Deep copy of plain JSON data (configs). */
 export const clone = data => JSON.parse(JSON.stringify(data));
 export const sameJSON = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-/** Короткий id для новых записей: p_x7k2m9 / b_4hq81z */
+/** Short id for new records: p_x7k2m9 / b_4hq81z */
 export const uid = prefix => `${prefix}_${Math.random().toString(36).slice(2, 8)}`;

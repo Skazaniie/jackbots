@@ -1,37 +1,37 @@
 /* ==========================================================================
    JackBOTS · components.css
-   Переиспользуемые «бумажные» детали. Каждый блок самодостаточен.
-   Анимации появления висят на классе .is-new — его ставит dom.js только
-   на новые элементы, поэтому при обновлении данных ничего не «перезапускается».
+   Reusable "paper" pieces. Each block is self-contained.
+   Appear animations hang on the .is-new class; dom.js sets it only
+   on new elements, so nothing "restarts" when data updates.
    ========================================================================== */
 
-/* ---------- Лист бумаги ---------- */
+/* ---------- Paper sheet ---------- */
 .sheet { position: relative; background: var(--paper); box-shadow: var(--shadow); padding: 24px 22px; }
 .sheet--lined { background: linear-gradient(rgba(47, 111, 224, .13) 1px, transparent 1px) 0 14px / 100% var(--line), var(--paper); }
 .sheet--torn { clip-path: polygon(0 6px, 4% 0, 9% 7px, 15% 1px, 22% 6px, 30% 0, 38% 8px, 46% 2px, 55% 7px, 63% 0, 71% 6px, 80% 1px, 88% 8px, 95% 0, 100% 6px, 100% 100%, 0 100%); }
 .sheet--tilt-l { transform: rotate(-.7deg); }
 .sheet--tilt-r { transform: rotate(.6deg); }
-/* Пружина блокнота сверху листа */
+/* Notebook spiral at the top of the sheet */
 .sheet--spiral { padding-top: 46px; }
 .sheet--spiral::before {
   content: ''; position: absolute; top: -14px; left: 20px; right: 20px; height: 30px; z-index: 3;
   background: radial-gradient(ellipse 7px 15px at 50% 50%, transparent 0 3px, #6f7782 4px 6px, transparent 7px) 0 0 / 30px 30px repeat-x;
 }
 
-/* ---------- Скотч ---------- */
+/* ---------- Tape ---------- */
 .tape {
   position: absolute; z-index: 3; top: -12px; left: 50%; width: 110px; height: 30px; margin-left: -55px;
   background: var(--tape); transform: rotate(-4deg); box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
   clip-path: polygon(2% 0, 98% 4%, 100% 50%, 97% 100%, 3% 96%, 0 50%); pointer-events: none;
 }
 
-/* ---------- Заголовок секции с маркером ---------- */
+/* ---------- Section heading with a marker ---------- */
 .section-head { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; min-height: 48px; }
 .section-head h2 { font: 700 44px/1 var(--font-title); }
 .section-head h2 span { background: linear-gradient(transparent 55%, var(--marker) 55%); padding: 0 4px; }
 .section-head .spacer { flex: 1; }
 
-/* ---------- Кнопки ---------- */
+/* ---------- Buttons ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   height: 56px; padding: 0 26px; border: 3px solid var(--ink); border-radius: var(--radius-hand);
@@ -50,7 +50,7 @@
 .btn.is-busy::after { content: '…'; animation: dots 1s steps(4) infinite; display: inline-block; width: 1ch; overflow: hidden; }
 @keyframes dots { from { width: 0; } }
 
-/* Текстовая ссылка-кнопка «от руки» с пунктирной рамкой */
+/* "Handwritten" text link button with a dashed border */
 .link-btn {
   font: 700 22px/1 var(--font-hand); color: var(--blue); padding: 6px 14px;
   border: 2px dashed currentColor; border-radius: 14px 4px 12px 5px; transition: background-color .2s;
@@ -59,7 +59,7 @@
 .link-btn--danger { color: var(--red); }
 .link-btn--plain { border-color: transparent; }
 
-/* ---------- Поля ввода ---------- */
+/* ---------- Inputs ---------- */
 .field { display: grid; gap: 6px; margin-bottom: 16px; min-width: 0; }
 .field > label, .label { font: 700 22px/1.1 var(--font-hand); }
 .field small, .hint { font: 600 17px/1.2 var(--font-hand); color: var(--ink-soft); }
@@ -81,7 +81,7 @@ select.input {
 .input-group .link-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 19px; padding: 4px 10px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
 
-/* Ползунок */
+/* Slider */
 .range { width: 100%; appearance: none; height: 30px; background: transparent; cursor: pointer; }
 .range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--ink); }
 .range::-moz-range-track { height: 6px; border-radius: 3px; background: var(--ink); }
@@ -89,7 +89,7 @@ select.input {
 .range::-moz-range-thumb { width: 22px; height: 22px; border: 3px solid var(--ink); border-radius: 50%; background: var(--red); }
 .range-legend { display: flex; justify-content: space-between; font: 600 16px var(--font-hand); color: var(--ink-soft); }
 
-/* ---------- Галочка «от руки» (вместо переключателей) ---------- */
+/* ---------- "Handwritten" checkmark (instead of toggles) ---------- */
 .check { display: flex; align-items: center; gap: 12px; padding: 6px 0; cursor: pointer; user-select: none; font: 700 23px/1.1 var(--font-hand); }
 .check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .check i {
@@ -105,7 +105,7 @@ select.input {
 .check input:focus-visible + i { outline: 3px dashed var(--blue); outline-offset: 3px; }
 .check small { display: block; font: 600 16px/1.15 var(--font-hand); color: var(--ink-soft); }
 
-/* ---------- Чипы (модели, переменные) ---------- */
+/* ---------- Chips (models, variables) ---------- */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 5px 12px;
@@ -117,7 +117,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .chip--var { background: var(--note-yellow); font-family: var(--font-mono); }
 .chip .chip-x { font: 700 18px/1 var(--font-hand); color: var(--red); padding: 0 2px; }
 
-/* ---------- Аватар бота / провайдера ---------- */
+/* ---------- Bot / provider avatar ---------- */
 .avatar {
   flex: none; display: grid; place-items: center; width: 50px; height: 50px; background: #fff;
   border: 2.5px solid var(--ink); border-radius: 50% 45% 52% 48%; box-shadow: 3px 3px 0 var(--accent, var(--ink));
@@ -126,7 +126,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .avatar--sm { width: 38px; height: 38px; box-shadow: 2px 2px 0 var(--accent, var(--ink)); }
 .avatar--sm img { width: 20px; height: 20px; }
 
-/* ---------- Код комнаты: 4 клетки + невидимое поле поверх ---------- */
+/* ---------- Room code: 4 cells + an invisible input on top ---------- */
 .code { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .code__cell {
   display: grid; place-items: center; height: 96px; background: #fff;
@@ -138,7 +138,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .code__cell.is-caret { box-shadow: 0 5px 0 -1px var(--blue); }
 .code__input {
   position: absolute; inset: 0; width: 100%; opacity: 0; border: 0; cursor: text;
-  font-size: 16px; /* меньше 16px — iOS зумит страницу */ text-transform: uppercase; caret-color: transparent;
+  font-size: 16px; /* below 16px iOS zooms the page */ text-transform: uppercase; caret-color: transparent;
 }
 .code:focus-within .code__cell.is-caret { box-shadow: 0 5px 0 -1px var(--red); }
 @keyframes scribble { from { transform: scale(1.4) rotate(-8deg); opacity: 0; } }
@@ -146,7 +146,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .status-line.is-ok { color: var(--green); }
 .status-line.is-bad { color: var(--red); }
 
-/* ---------- Полароид (карточка игры) ---------- */
+/* ---------- Polaroid (game card) ---------- */
 .polaroid {
   position: relative; display: block; width: 100%; padding: 9px 9px 40px; background: #fff; text-align: center;
   box-shadow: 0 6px 14px rgba(0, 0, 0, .18); transform: rotate(var(--tilt, 0deg));
@@ -159,7 +159,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .polaroid__art { inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .polaroid__logo { left: 50%; top: 50%; max-width: 82%; max-height: 62%; transform: translate(-50%, -50%); filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .35)); }
 .polaroid__caption { position: absolute; left: 8px; right: 8px; bottom: 7px; font: 700 21px/1 var(--font-hand); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Обводка «ручкой» у выбранной карточки рисуется плавно */
+/* The "pen" outline of the selected card is drawn smoothly */
 .polaroid::after {
   content: ''; position: absolute; inset: -9px; pointer-events: none; border: 3px solid var(--red);
   border-radius: 50% 45% 55% 48% / 55% 50% 45% 50%; transform: rotate(-3deg) scale(.85); opacity: 0;
@@ -169,7 +169,7 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .polaroid--small { padding: 6px 6px 30px; }
 .polaroid--small .polaroid__caption { font-size: 18px; bottom: 5px; }
 
-/* ---------- Стикер (событие ленты, подсказка) ---------- */
+/* ---------- Sticker (feed event, hint) ---------- */
 .note {
   position: relative; padding: 14px 16px 12px; background: var(--note, var(--note-yellow));
   box-shadow: var(--shadow-note); transform: rotate(var(--tilt, 0deg)); overflow-wrap: anywhere;
@@ -181,20 +181,20 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .note__meta { display: flex; gap: 8px; justify-content: space-between; align-items: flex-end; font: 600 16px/1.15 var(--font-hand); color: #6a6a4a; }
 .note__meta > :last-child { flex: none; white-space: nowrap; }
 
-/* ---------- Штамп ---------- */
+/* ---------- Stamp ---------- */
 .stamp {
   display: inline-block; padding: 1px 10px; border: 2.5px solid currentColor; border-radius: 6px;
   font: 700 19px/1.2 var(--font-hand); transform: rotate(-4deg); white-space: nowrap;
 }
 .stamp--ok { color: var(--green); } .stamp--wait { color: var(--amber); } .stamp--bad { color: var(--red); } .stamp--gold { color: #b8860b; }
 
-/* ---------- Индикатор «бот думает» ---------- */
+/* ---------- "Bot is thinking" indicator ---------- */
 .dots-typing::after { content: '…'; display: inline-block; width: 1.2ch; overflow: hidden; vertical-align: bottom; animation: dots 1.2s steps(4) infinite; }
 
-/* ---------- Пустой список ---------- */
+/* ---------- Empty list ---------- */
 .empty { padding: 26px 10px; text-align: center; font: 700 22px/1.3 var(--font-hand); color: var(--ink-soft); }
 
-/* ---------- Уведомления ---------- */
+/* ---------- Toasts ---------- */
 .toasts { position: fixed; z-index: 100; right: 24px; bottom: 24px; display: grid; gap: 10px; width: min(380px, calc(100vw - 28px)); pointer-events: none; }
 .toast {
   padding: 12px 16px; background: var(--note-yellow); box-shadow: var(--shadow-note); font: 700 21px/1.2 var(--font-hand);
@@ -203,14 +203,14 @@ button.chip:hover { transform: rotate(-2deg) scale(1.04); }
 .toast--ok { background: var(--note-green); } .toast--bad { background: var(--note-pink); color: #9b1c22; }
 .toast.is-leaving { opacity: 0; transform: translateX(30px) rotate(4deg); }
 
-/* ---------- Диалог подтверждения ---------- */
+/* ---------- Confirm dialog ---------- */
 .dialog { border: 0; padding: 0; background: transparent; max-width: min(440px, calc(100vw - 32px)); margin: auto; overflow: visible; }
 .dialog::backdrop { background: rgba(34, 48, 63, .35); backdrop-filter: blur(2px); }
 .dialog[open] .sheet { animation: stick .4s var(--ease-pop); }
 .dialog p { font: 700 26px/1.25 var(--font-hand); margin: 6px 0 22px; }
 .dialog__actions { display: flex; gap: 14px; justify-content: flex-end; flex-wrap: wrap; }
 
-/* ---------- Переключатель вариантов (версия игры на странице промтов) ---------- */
+/* ---------- Segmented switch (game version on the prompts page) ---------- */
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
 .seg__btn {
   padding: 4px 14px; border: 2px solid var(--ink); border-radius: var(--radius-hand); background: #fff;

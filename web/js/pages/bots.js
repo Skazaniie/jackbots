@@ -1,8 +1,8 @@
 /**
- * Страница «Боты»: карточки ботов слева, редактор выбранного справа.
+ * "Bots" page: bot cards on the left, the selected bot's editor on the right.
  *
- * Правки копятся в черновике `draft` и уходят на сервер кнопкой «Сохранить».
- * Карточки обновляются на лету (syncList + update), поэтому ничего не мигает.
+ * Edits accumulate in the `draft` and go to the server with the "Save" button.
+ * Cards update on the fly (syncList + update), so nothing flickers.
  */
 import { api } from '../api.js';
 import { COLORS, GAMES, providerIcon, secs } from '../catalog.js';
@@ -11,7 +11,7 @@ import { t } from '../i18n.js';
 import { confirmDialog, toast, toastError, withBusy } from '../ui.js';
 
 const NEW_CARD = { id: '__new' };
-// пример задания из app/prompts.py (SAMPLES) — на языке версии игры, которой ответил сервер
+// sample task from app/prompts.py (SAMPLES), in the game version language the server answered with
 const SAMPLE_TASK = { en: 'The worst thing to say on a first date', ru: 'Худшее, что можно сказать на первом свидании' };
 
 function newBot(index, providers) {
@@ -62,7 +62,7 @@ export default {
     const current = () => draft.find(b => b.id === currentId);
     const isDirty = () => !sameJSON(saved, draft);
 
-    // ---------- карточки ----------
+    // ---------- cards ----------
     function updateCard(node, bot) {
       if (bot === NEW_CARD) return;
       node.style.setProperty('--accent', bot.color);
@@ -107,7 +107,7 @@ export default {
       r.editor.querySelector('[name="name"]')?.select();
     }
 
-    // ---------- редактор ----------
+    // ---------- editor ----------
     function modelOptions(bot) {
       const p = providers.find(x => x.id === bot.provider);
       return [...new Set([...(p?.models || []), bot.model].filter(Boolean))];
@@ -182,7 +182,7 @@ export default {
       Object.assign(r, refs(r.editor));
     }
 
-    /** Перенести одно изменённое поле формы в черновик. */
+    /** Move one changed form field into the draft. */
     function applyField(input) {
       const bot = current();
       const { name } = input;
@@ -235,10 +235,10 @@ export default {
         : html`<div class="note note--error is-new"><div class="note__who">${t('Error')}</div><div class="note__text">${res.error}</div></div>`);
     }
 
-    // ---------- сохранение ----------
+    // ---------- saving ----------
     /**
-     * Сохранить список на сервер.
-     * keepDraftInSync=false — черновик не трогаем (так удаление не сохраняет чужие незаконченные правки).
+     * Save the list to the server.
+     * keepDraftInSync=false leaves the draft alone (so deleting doesn't save someone's unfinished edits).
      */
     async function persist(list, keepDraftInSync = true) {
       const result = await api.saveBots(list);
@@ -254,7 +254,7 @@ export default {
       toast(t('Saved'), 'ok');
     }));
 
-    // ---------- старт ----------
+    // ---------- start ----------
     try {
       [saved, providers] = await Promise.all([api.bots(), api.providers()]);
     } catch (error) {

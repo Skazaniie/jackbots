@@ -17,12 +17,12 @@ import android.util.Log;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 
-/** Держит Python-сервер ботов живым в фоне: foreground-уведомление + wake/wifi lock. */
+/** Keeps the Python bot server alive in the background: foreground notification + wake/wifi lock. */
 public class BotService extends Service {
     static final String TAG = "JackBOTS";
     static final String ACTION_STOP = "com.jackbots.app.STOP";
     static final int PORT = 4791;
-    static volatile String error;  // текст ошибки запуска сервера, показывает MainActivity
+    static volatile String error;  // server startup error text, shown by MainActivity
 
     private static Thread server;
     private PowerManager.WakeLock wake;
@@ -83,7 +83,7 @@ public class BotService extends Service {
             try {
                 String root = Files.prepare(ctx);
                 PyObject launcher = Python.getInstance().getModule("jackbots_launcher");
-                launcher.callAttr("run", root, PORT);  // блокирует, пока сервер не остановят
+                launcher.callAttr("run", root, PORT);  // blocks until the server is stopped
             } catch (Throwable t) {
                 Log.e(TAG, "server failed", t);
                 error = String.valueOf(t);
@@ -101,7 +101,7 @@ public class BotService extends Service {
         }
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
-        // Python в процессе нельзя перезапустить начисто — закрываем приложение целиком
+        // Python can't be restarted cleanly inside the process, so close the whole app
         MainActivity.finishAll();
         android.os.Process.killProcess(android.os.Process.myPid());
     }

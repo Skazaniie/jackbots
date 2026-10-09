@@ -1,5 +1,5 @@
-// Генерирует все иконки из branding/*.svg. Нужен Node 18+ и sharp: `npm i sharp`, затем `node tools/build_icons.js`.
-// Пишет: branding/jackbots.ico (exe), branding/icon-512.png (README), web/favicon.svg, android/.../mipmap-*.
+// Generates all icons from branding/*.svg. Needs Node 18+ and sharp: `npm i sharp`, then `node tools/build_icons.js`.
+// Writes: branding/jackbots.ico (exe), branding/icon-512.png (README), web/favicon.svg, android/.../mipmap-*.
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
@@ -10,7 +10,7 @@ const RES = path.join(ROOT, 'android/app/src/main/res');
 const svg = name => fs.readFileSync(path.join(BRAND, name));
 const png = (name, size) => sharp(svg(name), { density: 72 * size / 1024 * 4 }).resize(size, size).png().toBuffer();
 
-// ICO с PNG внутри (Windows Vista+): заголовок, каталог, затем сами картинки.
+// ICO with PNGs inside (Windows Vista+): header, directory, then the images.
 function ico(images) {
   const head = Buffer.alloc(6 + 16 * images.length);
   head.writeUInt16LE(1, 2);
@@ -42,7 +42,7 @@ const write = (file, data) => {
   fs.copyFileSync(path.join(BRAND, 'icon.svg'), path.join(ROOT, 'web/favicon.svg'));
   console.log('  web/favicon.svg');
 
-  // Android: обычная иконка 48dp и слои адаптивной 108dp для каждой плотности.
+  // Android: a regular 48dp icon and 108dp adaptive layers for each density.
   const density = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 };
   for (const [name, k] of Object.entries(density)) {
     const dir = path.join(RES, 'mipmap-' + name);

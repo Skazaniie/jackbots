@@ -1,6 +1,6 @@
 /**
- * Клиент HTTP API панели (см. app/main.py). Все запросы — JSON.
- * Ошибки сервера превращаются в ApiError с понятным текстом из поля `detail`.
+ * Panel HTTP API client (see app/main.py). All requests are JSON.
+ * Server errors become ApiError with a readable message from the `detail` field.
  */
 import { t } from './i18n.js';
 
@@ -37,13 +37,13 @@ export const api = {
 
   providers: () => get('providers'),
   saveProviders: list => put('providers', list),
-  /** Проверить подключение; `draft` — несохранённые поля провайдера. */
+  /** Check the connection; `draft` holds unsaved provider fields. */
   testProvider: (id, draft) => post(`providers/${encodeURIComponent(id)}/test`, draft ?? {}),
 
   bots: () => get('bots'),
   saveBots: list => put('bots', list),
 
-  /** Промты версии игры: lang 'ru' → prompts.json, 'en' → prompts_en.json. */
+  /** Prompts for a game version: lang 'ru' -> prompts.json, 'en' -> prompts_en.json. */
   prompts: lang => get(lang === 'en' ? 'prompts_en' : 'prompts'),
   savePrompts: (lang, data) => put(lang === 'en' ? 'prompts_en' : 'prompts', data),
   resetPrompt: (lang, game, phase) => post('prompts/reset', { lang, game, phase }),
@@ -57,6 +57,6 @@ export const api = {
   stopSession: () => post('session/stop'),
   startGame: () => post('session/startgame'),
 
-  /** Один запрос к модели бота. Возвращает { ok, text, ms, ttft } или { ok:false, error }. */
+  /** One request to the bot's model. Returns { ok, text, ms, ttft } or { ok:false, error }. */
   ask: ({ botId, game, phase, vars, lang }) => post('ask', { bot_id: botId, game, phase, vars, lang }),
 };

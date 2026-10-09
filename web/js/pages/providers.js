@@ -1,6 +1,6 @@
 /**
- * Страница «Ключи» (провайдеры): любой сервер с OpenAI-совместимым API
- * (POST {base_url}/chat/completions). Можно добавить сколько угодно своих.
+ * "Keys" page (providers): any server with an OpenAI-compatible API
+ * (POST {base_url}/chat/completions). Add as many of your own as you like.
  */
 import { api } from '../api.js';
 import { COLORS, ICONS, PROVIDER_PRESETS, iconUrl, newProvider } from '../catalog.js';
@@ -10,7 +10,7 @@ import { confirmDialog, toast, toastError, withBusy } from '../ui.js';
 
 const STATUS_KIND = { ok: 'ok', new: 'wait', bad: 'bad' };
 const STATUS_LABEL = { ok: 'connected', new: 'not checked', bad: 'no connection' };
-/** [вид штампа, подпись] для статуса провайдера */
+/** [stamp kind, label] for a provider status */
 const statusOf = status => (STATUS_KIND[status] ? [STATUS_KIND[status], t(STATUS_LABEL[status])] : ['wait', t('not checked')]);
 const JSON_FIELDS = { extra_body: 'Extra request parameters', headers: 'Extra headers' };
 
@@ -56,12 +56,12 @@ export default {
     let saved = [];
     let draft = [];
     let currentId = null;
-    let found = [];                  // модели, которые вернул сервер при проверке
-    const jsonErrors = new Set();    // `${id}:${field}` — поля с неверным JSON
+    let found = [];                  // models the server returned during the check
+    const jsonErrors = new Set();    // `${id}:${field}`: fields with invalid JSON
     const current = () => draft.find(p => p.id === currentId);
     const isDirty = () => !sameJSON(saved, draft);
 
-    // ---------- список ----------
+    // ---------- list ----------
     function updateRow(node, p) {
       const [kind, label] = statusOf(p.status);
       node.style.setProperty('--accent', p.color);
@@ -109,7 +109,7 @@ export default {
       if (chip) add(PROVIDER_PRESETS[Number(chip.dataset.preset)]);
     });
 
-    // ---------- редактор ----------
+    // ---------- editor ----------
     function modelChips(p) {
       return html`${p.models.map(m => html`
         <span class="chip">${m}<button class="chip-x" type="button" data-remove-model="${m}" aria-label="${t('Remove {m}', { m })}">×</button></span>`)}`;
@@ -265,7 +265,7 @@ export default {
       const res = await api.testProvider(p.id, p);
       p.status = res.ok ? 'ok' : 'bad';
       p.last_ms = res.ms || 0;
-      // статус проверки сервер уже записал сам — синхронизируем, чтобы он не считался «правкой»
+      // the server has already saved the check status itself; sync it so it doesn't count as an "edit"
       const stored = saved.find(x => x.id === p.id);
       if (stored) Object.assign(stored, { status: p.status, last_ms: p.last_ms });
       const [kind, label] = statusOf(p.status);
@@ -299,7 +299,7 @@ export default {
       toast(t('Saved'), 'ok');
     }));
 
-    // ---------- старт ----------
+    // ---------- start ----------
     try {
       saved = await api.providers();
     } catch (error) {

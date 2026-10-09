@@ -1,8 +1,8 @@
 /**
- * Страница «Игра»: код комнаты → запуск ботов, банда, выбор игры, живая лента.
+ * "Game" page: room code -> start bots, the gang, game choice, live feed.
  *
- * Состояние страницы хранится в объекте `state`, отрисовка разбита на маленькие
- * функции render*(), каждая обновляет только свой блок.
+ * Page state is kept in the `state` object, rendering is split into small
+ * render*() functions, each updates only its own block.
  */
 import { api } from '../api.js';
 import { GAMES, gameByTag, providerIcon, secs, speedKind } from '../catalog.js';
@@ -14,12 +14,12 @@ import { toast, toastError, withBusy } from '../ui.js';
 const STORAGE = { code: 'jackbots.code', benched: 'jackbots.benched' };
 const FEED_VISIBLE = 40;
 const NOTE_COLORS = ['var(--note-yellow)', 'var(--note-pink)', 'var(--note-green)', 'var(--note-blue)'];
-// коды статусов бота с сервера (app/games.py, app/jackbox.py) → подписи
+// bot status codes from the server (app/games.py, app/jackbox.py) -> labels
 const STATUS = () => ({ connecting: t('connecting'), joined: t('in the game'), error: t('connection error'),
   reconnect: t('reconnecting'), gone: t('left') });
 const statusLabel = code => STATUS()[code] || code;
 
-// Коды комнат только латиницей; если включена русская раскладка — переводим по клавишам.
+// Room codes are Latin only; if the Russian keyboard layout is on, map by keys.
 const RU_KEYS = 'ЙЦУКЕНГШЩЗФЫВАПРОЛДЯЧСМИТЬ';
 const EN_KEYS = 'QWERTYUIOPASDFGHJKLZXCVBNM';
 export function normalizeCode(value) {
@@ -77,13 +77,13 @@ export default {
 
     const state = {
       bots: [], providers: [],
-      tag: GAMES[0].tag,                 // выбранная игра: из комнаты или кликом по карточке
+      tag: GAMES[0].tag,                 // selected game: from the room or by clicking a card
       room: { kind: 'idle', text: '' },  // idle | checking | ok | bad
       benched: new Set(JSON.parse(localStorage.getItem(STORAGE.benched) || '[]')),
     };
     const session = () => live.session;
 
-    // ---------- код комнаты ----------
+    // ---------- room code ----------
     function renderCode() {
       const value = r.codeInput.value;
       cells.forEach((cell, i) => {
@@ -109,7 +109,7 @@ export default {
       renderRoomStatus();
       try {
         const info = await api.room(code);
-        if (id !== roomRequest || signal.aborted) return;   // пришёл ответ на устаревший код
+        if (id !== roomRequest || signal.aborted) return;   // the answer is for an outdated code
         if (info.supported) {
           state.tag = info.appTag;
           state.room = { kind: 'ok', text: `${t('✓ found it! {title}', { title: info.title })}${info.locked ? ` · ${t('the game has already started')}` : ''}` };
@@ -130,7 +130,7 @@ export default {
       renderCode();
       localStorage.setItem(STORAGE.code, code);
       if (code.length === 4) {
-        r.codeInput.blur();              // на телефоне прячем клавиатуру
+        r.codeInput.blur();              // hide the keyboard on phones
         checkRoom(code);
       } else {
         checkRoom.cancel(); roomRequest++;
@@ -142,7 +142,7 @@ export default {
     on(r.codeInput, 'focus', renderCode);
     on(r.codeInput, 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); r.go.click(); } });
 
-    // ---------- запуск / остановка ----------
+    // ---------- start / stop ----------
     function renderControls() {
       const s = session();
       r.go.textContent = s.running ? t('■ stop the bots') : t('start the bots →');
@@ -169,7 +169,7 @@ export default {
 
     on(r.vip, 'click', () => withBusy(r.vip, async () => { await api.startGame(); }));
 
-    // ---------- банда ----------
+    // ---------- gang ----------
     function eligibleBots() {
       const s = session();
       if (s.running) {
@@ -187,7 +187,7 @@ export default {
         <span class="cast-row__state"></span>
       </label>`;
 
-    /** Точечно обновляет строку бота: имя, подпись, отметку и штамп скорости. */
+    /** Updates a bot row in place: name, caption, mark and speed stamp. */
     function updateCastRow(node, bot) {
       const s = session();
       const liveBot = s.bots.find(b => b.id === bot.id);
@@ -225,7 +225,7 @@ export default {
       renderCast();
     });
 
-    // ---------- игры ----------
+    // ---------- games ----------
     function renderGames() {
       syncList(r.games, GAMES, {
         key: g => g.tag,
@@ -248,8 +248,8 @@ export default {
       renderGames(); renderCast();
     });
 
-    // ---------- лента ----------
-    /** Событие «думает» убираем, как только этот бот ответил. */
+    // ---------- feed ----------
+    /** Remove the "thinking" event as soon as this bot answers. */
     function visibleFeed() {
       const answered = new Set();
       const out = [];
@@ -295,7 +295,7 @@ export default {
       r.liveDot.className = `live-dot ${session().running ? 'is-on' : ''}`;
     }
 
-    // ---------- живые обновления ----------
+    // ---------- live updates ----------
     function onSession() {
       const s = session();
       if (s.running && s.tag && s.tag !== state.tag) { state.tag = s.tag; renderGames(); }
@@ -305,7 +305,7 @@ export default {
     live.addEventListener('session', onSession, { signal });
     live.addEventListener('feed', renderFeed, { signal });
 
-    // ---------- старт ----------
+    // ---------- start ----------
     renderCode(); renderRoomStatus(); renderControls(); renderGames(); renderFeed();
     try {
       [state.bots, state.providers] = await Promise.all([api.bots(), api.providers()]);

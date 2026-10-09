@@ -1,5 +1,5 @@
-"""Офлайн-проверка логики игр без сети: фейковая модель + фейковые состояния комнаты.
-Запуск: python tools/selftest.py
+"""Offline check of the game logic without network: fake model + fake room states.
+Run: python tools/selftest.py
 """
 import asyncio
 import sys
@@ -45,7 +45,7 @@ class FakeSession:
 async def run(cls, steps, game_language="auto", **cfg):
     s = FakeSession()
     s.game_language = game_language
-    # фиксированный бот, а не первый из config/: тест не должен зависеть от личных настроек
+    # a fixed bot, not the first one from config/: the test must not depend on personal settings
     bot = cls(s, {**store.DEFAULT_BOTS[0], "enabled": True, "games": {}, "vision": False, **cfg})
     sent = []
 
@@ -101,7 +101,7 @@ async def main():
         (me, {"state": "Gameplay_PickCategory", "choices": [{"id": 4, "text": "Еда"}, {"id": 9, "text": "Секс"}]}),
         ("bc:room", {"state": "Gameplay_EnterPercentage", "question": "Сколько % людей храпят?", "survey": "Сон"}),
         (me, {"state": "Gameplay_EnterPercentage"}),
-        # реальный формат из игры: число внутри question, вопрос — в survey, id с большой буквы
+        # real format from the game: the number is inside question, the question is in survey, id is capitalized
         ("bc:room", {"state": "Gameplay_ChooseUpOrDown", "question": "Батя ответил 42% ", "survey": "Сколько % людей храпят?",
                      "choices": [{"id": "Higher", "text": "Больше"}, {"id": "Lower", "text": "Меньше"}]}),
         (me, {"state": "Gameplay_ChooseUpOrDown"}),
@@ -137,7 +137,7 @@ async def main():
 
 
 async def check_tmp2(me):
-    """Смертельная вечеринка 2: фейковые blob'ы в формате pp6-triviadeath2."""
+    """Trivia Murder Party 2: fake blobs in the pp6-triviadeath2 format."""
     games.TriviaDeath2.SPEED = 0
     assert games.solve_math("7 − 12") == -5 and games.solve_math("3 × 4") == 12 and games.solve_math("привет") is None
     planet = {"state": "MakeSingleChoice", "prompt": {"html": "Самая большая планета?"},
@@ -161,7 +161,7 @@ async def check_tmp2(me):
         ("player", {"state": "Drop"}),
         (me, {"state": "Draw", "prompt": {"html": "Нарисуй тату"}, "objectKey": "draw:7"}),
         (me, {"state": "Logo"}),
-        # реальные форматы из лога партии: финал с переключателями, слияние разумов, пожертвования, зеркало
+        # real formats from a game log: finale with toggles, mind meld, donations, mirror
         (me, {"state": "MakeSingleChoice", "roundType": "FinalRound", "prompt": {"html": "<div>Десятибуквенные слова</div>"},
               "choices": [{"className": "unselected", "html": "вафельница"}, {"className": "unselected", "html": "кот"},
                           {"className": "unselected", "html": "водопровод"}, {"className": "submit", "html": "ОТПРАВИТЬ"}]}),
@@ -224,7 +224,7 @@ async def check_tmp2(me):
 
 
 async def check_sti(me):
-    """Выжить в интернете: blob'ы в формате pp4 (bc:customer, text с чёрной плашкой, фото финала)."""
+    """Survive the Internet: blobs in the pp4 format (bc:customer, text with a black bar, finale photo)."""
     games.TriviaDeath2.SPEED = 0
     img = "<img src='images/survivetheinternet/photos/Funeral.jpg'/>"
     st = [
@@ -278,7 +278,7 @@ async def check_sti(me):
 
 
 async def check_english():
-    """Английская версия (jackbox.tv): ответы только латиницей, ник латиницей, промты на английском."""
+    """English version (jackbox.tv): Latin-only answers, Latin nickname, English prompts."""
     from app import lang
     assert lang.detect("The worst thing to say") == "en" and lang.detect("Худшее, что можно") == "ru"
     assert lang.latin_safe("Привет, «мир» 😀 — ok") == 'Privet, "mir" - ok'
@@ -286,7 +286,7 @@ async def check_english():
     assert games.render("{question}|{вопрос}|{nope}", {"вопрос": "x"}) == "x|x|{nope}"
     me = "bc:customer:7"
     steps = [(me, {"state": "Gameplay_AnswerQuestion", "question": {"id": 5, "prompt": "The worst thing to say <BLANK> on a date"}})]
-    sent, errs, bot = await run(games.Quiplash2, steps)  # auto: язык по тексту вопроса
+    sent, errs, bot = await run(games.Quiplash2, steps)  # auto: language by the question text
     assert not errs, errs
     assert bot.lang == "en", bot.lang
     assert sent == [{"answer": "Mama uzhe vybrala imena nashim detyam", "questionId": 5}], sent
@@ -300,7 +300,7 @@ async def check_english():
 
 
 async def check_reconnect_limit():
-    """Сервер принимает соединение и сразу шлёт ошибку (как для полной комнаты) — бот должен сдаться."""
+    """The server accepts the connection and immediately sends an error (as for a full room); the bot must give up."""
     import json as _json
     from app import jackbox
     attempts, statuses = [], []

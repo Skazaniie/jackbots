@@ -1,13 +1,13 @@
-"""Промты по умолчанию для двух версий игры: русской (jackbox.fun) и английской (jackbox.tv).
+"""Default prompts for both game versions: Russian (jackbox.fun) and English (jackbox.tv).
 
-Переменные в фигурных скобках подставляет app/games.py. Внутри кода значения лежат под русскими ключами
-({вопрос}, {история}…); английские промты пишутся с английскими именами ({question}, {history}…) —
-соответствие задаёт VAR_ALIASES. В любом промте работают оба варианта.
+Variables in curly braces are filled in by app/games.py. Inside the code the values live under Russian keys
+({вопрос}, {история}...); English prompts use English names ({question}, {history}...),
+mapped by VAR_ALIASES. Both variants work in any prompt.
 """
 
 LANGS = {"ru": "Русский", "en": "English"}
 
-# английское имя переменной → внутренний ключ
+# English variable name -> internal key
 VAR_ALIASES = {
     "game": "игра", "name": "имя", "persona": "персонаж", "question": "вопрос", "history": "история",
     "options": "варианты", "word": "слово", "round": "раунд", "number": "число", "survey": "опрос",
@@ -15,7 +15,7 @@ VAR_ALIASES = {
     "answer": "ответ", "photo": "фото", "vision": "зрение",
 }
 
-# ======================================================================= русская версия
+# ======================================================================= Russian version
 SYSTEM_RU = (
     "Ты играешь в игру Jackbox «{игра}» под именем {имя}. Твой характер: {персонаж}. "
     "Играешь против других игроков, отвечаешь как обычный игрок и не объясняешь ответы. "
@@ -267,8 +267,8 @@ VARS_EN = {
     "survivetheinternet": ["question", "answer", "photo", "vision", "options", "limit", "history", "name", "persona"],
 }
 
-# ======================================================================= примеры для превью и теста
-# Значения переменных, пока игра не идёт: «Промты» показывают по ним, что уйдёт модели.
+# ======================================================================= samples for preview and test
+# Variable values while no game is running: the Prompts page uses them to show what goes to the model.
 SAMPLES_RU = {
     "quiplash2": {
         "вопрос": "Худшее, что можно сказать на первом свидании",

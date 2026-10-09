@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/** Распаковывает код панели (assets/panel, собирается из корня репозитория) в папку приложения: Python и StaticFiles нужны настоящие файлы. */
+/** Unpacks the panel code (assets/panel, built from the repo root) into the app folder: Python and StaticFiles need real files. */
 final class Files {
     private Files() {}
 
@@ -34,7 +34,7 @@ final class Files {
             for (String k : kids) copy(am, path + "/" + k, new File(dst, k));
             return;
         }
-        // настройки пользователя (ключи, боты, промты) при обновлении не перетираем
+        // don't overwrite user settings (keys, bots, prompts) on update
         if (dst.exists() && dst.getParentFile() != null && dst.getParentFile().getName().equals("config")) return;
         try (InputStream in = am.open(path); OutputStream out = new FileOutputStream(dst)) {
             byte[] buf = new byte[65536];

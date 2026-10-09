@@ -1,12 +1,12 @@
 /**
- * Хеш-роутер: #/game, #/bots?new=1 …
- * Каркас (меню, фон) не перерисовывается — меняется только содержимое <main>,
- * поэтому анимации и состояние каркаса не сбрасываются при переходах.
+ * Hash router: #/game, #/bots?new=1 ...
+ * The layout (menu, background) is not redrawn; only the <main> content changes,
+ * so animations and layout state are not reset on navigation.
  *
- * Страница — объект { id, mount(view, ctx) }, где mount может вернуть объект
- * { canLeave?: () => Promise<boolean> | boolean }. ctx.signal отменяется при уходе
- * со страницы: передавай его в addEventListener, и обработчики снимутся сами.
- * ctx.params — URLSearchParams из части адреса после «?».
+ * A page is an object { id, mount(view, ctx) }, where mount may return an object
+ * { canLeave?: () => Promise<boolean> | boolean }. ctx.signal is aborted when leaving
+ * the page: pass it to addEventListener and handlers are removed automatically.
+ * ctx.params is URLSearchParams from the part of the URL after "?".
  */
 
 import { t } from './i18n.js';
@@ -38,27 +38,27 @@ export class Router {
     if (!page) { location.replace(`#/${this.fallback}`); return; }
 
     if (this.current?.instance?.canLeave && !(await this.current.instance.canLeave())) {
-      this._restoring = true;              // вернуть адрес, не перерисовывая страницу
+      this._restoring = true;              // restore the URL without redrawing the page
       location.hash = this.current.hash;
       return;
     }
     this.current?.controller.abort();
 
     const controller = new AbortController();
-    // У каждой страницы свой корень: если старая страница допишет что-то после
-    // асинхронной загрузки, это попадёт в уже отсоединённый элемент, а не на экран.
+    // Each page has its own root: if an old page appends something after
+    // an async load, it lands in a detached element, not on screen.
     const root = document.createElement('div');
     root.className = `page page--${id}`;
     this.view.replaceChildren(root);
     this.view.classList.remove('is-entering');
-    void this.view.offsetWidth;            // перезапуск анимации входа только для <main>
+    void this.view.offsetWidth;            // restart the enter animation only for <main>
     this.view.classList.add('is-entering');
     window.scrollTo({ top: 0, behavior: 'instant' });
     const current = { id, hash: location.hash, controller, instance: null };
     this.current = current;
     this.onChange?.(id);
     try {
-      // replaceHash — поменять адрес без перехода (например, убрать ?new=1 после создания)
+      // replaceHash: change the URL without navigating (e.g. drop ?new=1 after creating)
       const replaceHash = hash => { history.replaceState(null, '', hash); current.hash = hash; };
       current.instance = (await page.mount(root, { params, signal: controller.signal, replaceHash })) || null;
     } catch (error) {

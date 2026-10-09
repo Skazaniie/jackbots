@@ -1,6 +1,6 @@
 /* ==========================================================================
    JackBOTS · pages.css
-   Раскладка конкретных страниц. Классы с префиксом страницы/блока.
+   Page-specific layout. Classes are prefixed with the page/block.
    ========================================================================== */
 
 .section-head .hint { align-self: flex-end; padding-bottom: 6px; }
@@ -10,12 +10,12 @@
 fieldset { border: 0; min-width: 0; }
 legend { margin-bottom: 6px; }
 
-/* Список слева + редактор справа (боты, провайдеры) */
+/* List on the left + editor on the right (bots, providers) */
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: start; }
 .editor { position: sticky; top: 24px; padding: 34px 26px 26px; }
 .editor-heading { font: 700 34px/1 var(--font-title); margin-bottom: 4px; }
 
-/* ---------- Игра ---------- */
+/* ---------- Game ---------- */
 .game-hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: start; margin-bottom: 46px; }
 .game-join { padding-top: 46px; }
 .game-join__vip { margin-top: 18px; }
@@ -49,7 +49,7 @@ legend { margin-bottom: 6px; }
 .note--error { --note: var(--note-pink); }
 .note--error .note__text { font-size: 17px; }
 
-/* ---------- Боты ---------- */
+/* ---------- Bots ---------- */
 .bot-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 22px; }
 .bot-card {
   position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 190px; padding: 22px 16px 16px;
@@ -65,7 +65,7 @@ legend { margin-bottom: 6px; }
 .bot-card__off { position: absolute; top: 18px; right: 12px; display: none; }
 .bot-card.is-off { opacity: .6; }
 .bot-card.is-off .bot-card__off { display: inline-block; }
-/* выбранная карточка обведена «ручкой» */
+/* the selected card is outlined with a "pen" */
 .bot-card::after { content: ''; position: absolute; inset: -8px; border: 3px solid var(--red); border-radius: 30px 8px 26px 10px / 10px 26px 8px 30px; opacity: 0; transform: scale(.94); transition: opacity .2s, transform .3s var(--ease-pop); pointer-events: none; }
 .bot-card.is-selected::after { opacity: 1; transform: none; }
 .bot-card--new { align-items: center; justify-content: center; background: transparent; border: 3px dashed var(--blue); box-shadow: none; color: var(--blue); }
@@ -77,7 +77,7 @@ legend { margin-bottom: 6px; }
 .swatch input:checked + i { transform: scale(1.15) rotate(-8deg); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5.5px var(--ink); }
 .swatch input:focus-visible + i, .icon-pick input:focus-visible + img { outline: 3px dashed var(--blue); outline-offset: 3px; }
 
-/* ---------- Провайдеры ---------- */
+/* ---------- Providers ---------- */
 .provider-list { padding: 14px 18px; }
 .provider-row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 8px; text-align: left; border-bottom: 2px dashed rgba(34, 48, 63, .22); border-radius: 8px; transition: background-color .2s; }
 .provider-row:last-child { border-bottom: 0; }
@@ -105,7 +105,7 @@ legend { margin-bottom: 6px; }
 .icon-pick img { width: 42px; height: 42px; padding: 7px; background: #fff; border: 2px solid rgba(34, 48, 63, .3); border-radius: 10px 4px 12px 5px; transition: transform .2s var(--ease-pop); }
 .icon-pick input:checked + img { border-color: var(--ink); box-shadow: 3px 3px 0 var(--red); transform: rotate(-6deg); }
 
-/* ---------- Промты ---------- */
+/* ---------- Prompts ---------- */
 .prompts { display: grid; grid-template-columns: 250px minmax(0, 1.3fr) minmax(0, 1fr); gap: 32px; align-items: start; }
 .game-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 14px; margin-bottom: 26px; }
 .prompts__versions { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 18px; }
@@ -131,7 +131,7 @@ legend { margin-bottom: 6px; }
 .preview__meta { color: var(--ink-soft); }
 .prompts__preview .btn { width: 100%; margin-bottom: 16px; }
 
-/* ---------- Тест ---------- */
+/* ---------- Test ---------- */
 .test-controls { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) 120px auto; gap: 16px; align-items: end; margin-bottom: 40px; }
 .test-controls .field { margin-bottom: 0; }
 .race { padding: 34px 26px 26px; }
@@ -157,7 +157,7 @@ legend { margin-bottom: 6px; }
 .race-summary .note__text { font: 700 34px/1 var(--font-title); }
 
 /* ==========================================================================
-   Средние экраны
+   Medium screens
    ========================================================================== */
 @media (max-width: 1280px) {
   .prompts { grid-template-columns: 230px minmax(0, 1fr); }
@@ -172,7 +172,7 @@ legend { margin-bottom: 6px; }
 }
 
 /* ==========================================================================
-   Телефон
+   Phones
    ========================================================================== */
 @media (max-width: 900px) {
   .section-head h2 { font-size: 40px; }
@@ -200,11 +200,11 @@ legend { margin-bottom: 6px; }
   .lane { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who time' 'track track' 'answer stamp'; }
   .lane__stamp { justify-self: end; }
   .editor-title { flex-wrap: wrap; }
-  .editor-title__name { order: 3; flex-basis: 100%; min-width: 0; }  /* имя — отдельной строкой под иконкой и статусом */
+  .editor-title__name { order: 3; flex-basis: 100%; min-width: 0; }  /* the name goes on its own line under the icon and status */
   .provider-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; }
   .provider-row .avatar { grid-row: span 2; }
   .provider-row__state { justify-self: start; font-size: 16px; }
 }
 
-/* ---------- Настройки ---------- */
+/* ---------- Settings ---------- */
 .settings { max-width: 680px; }

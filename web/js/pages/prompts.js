@@ -1,7 +1,7 @@
 /**
- * Страница «Промты»: системный промт + отдельный промт на каждую фазу каждой игры.
- * У английской (jackbox.tv) и русской версии игры свои промты: prompts_en.json и prompts.json.
- * Список переменных и примеры значений приходят с сервера (/api/meta).
+ * "Prompts" page: the system prompt + a separate prompt for each phase of each game.
+ * The English (jackbox.tv) and Russian game versions have their own prompts: prompts_en.json and prompts.json.
+ * The variable list and sample values come from the server (/api/meta).
  */
 import { api } from '../api.js';
 import { GAMES, gameByTag, providerIcon, secs } from '../catalog.js';
@@ -51,7 +51,7 @@ const template = () => html`
     </section>
   </div>`;
 
-/** «0-1500» → [0, 1500]; одно число → [n, n]. */
+/** '0-1500' -> [0, 1500]; a single number -> [n, n]. */
 export function parseDelay(value) {
   const parts = String(value || '0').split(/[-–,\s]+/).filter(Boolean).map(x => Math.max(0, Number(x) || 0));
   return [parts[0] ?? 0, parts[1] ?? parts[0] ?? 0];
@@ -70,7 +70,7 @@ export default {
     let meta, bots = [], providers = [];
     let saved = { prompts: null, settings: null };   // prompts: { en: {...}, ru: {...} }
     let draft = { prompts: null, settings: null };
-    let version = 'en';                              // какую версию игры редактируем
+    let version = 'en';                              // which game version is being edited
     let game = GAMES[0].tag;
     let phase = SYSTEM;
     let botId = null;
@@ -78,7 +78,7 @@ export default {
     const phasesOf = tag => draft.prompts[version][tag] || {};
     const gameTitle = tag => gameByTag(tag)?.titles[version] || tag;
 
-    // ---------- версия игры ----------
+    // ---------- game version ----------
     function renderVersions() {
       for (const b of r.versions.querySelectorAll('[data-version]')) {
         const selected = b.dataset.version === version;
@@ -95,7 +95,7 @@ export default {
     });
     const firstPhase = tag => Object.keys(phasesOf(tag))[0];
 
-    // ---------- навигация: игры и фазы ----------
+    // ---------- navigation: games and phases ----------
     function renderGames() {
       syncList(r.games, GAMES, {
         key: g => g.tag,
@@ -137,7 +137,7 @@ export default {
       renderPhases(); loadEditor();
     });
 
-    // ---------- редактор ----------
+    // ---------- editor ----------
     function loadEditor() {
       const isSystem = phase === SYSTEM;
       const ph = isSystem ? null : phasesOf(game)[phase];
@@ -186,7 +186,7 @@ export default {
       } catch (error) { toastError(error); }
     });
 
-    // ---------- превью ----------
+    // ---------- preview ----------
     function renderWho() {
       syncList(r.who, bots, {
         key: b => b.id,
@@ -206,7 +206,7 @@ export default {
       renderWho(); renderPreview();
     });
 
-    /** Локальная подстановка переменных — превью обновляется без сохранения. */
+    /** Local variable substitution: the preview updates without saving. */
     const renderPreview = debounce(() => {
       const bot = bots.find(b => b.id === botId);
       if (!bot) { r.preview.textContent = t('No bots — the preview is built for a sample bot.'); return; }
@@ -235,7 +235,7 @@ ${fill(ph.text)}
         : html`<div class="note note--error is-new"><div class="note__who">${t('Error')}</div><div class="note__text">${res.error}</div></div>`);
     }));
 
-    // ---------- сохранение ----------
+    // ---------- saving ----------
     function changed() {
       r.save.textContent = isDirty() ? t('save *') : t('saved ✓');
       r.save.disabled = !isDirty();
@@ -243,7 +243,7 @@ ${fill(ph.text)}
       renderPreview();
     }
     async function persist() {
-      // сохраняем только изменённые части: настройки могли поменять на другой странице
+      // save only the changed parts: settings may have changed on another page
       const tasks = VERSIONS.map(v => (sameJSON(saved.prompts[v], draft.prompts[v]) ? saved.prompts[v] : api.savePrompts(v, draft.prompts[v])));
       const settingsTask = sameJSON(saved.settings, draft.settings) ? saved.settings : api.saveSettings(draft.settings);
       const [en, ru, settings] = await Promise.all([...tasks, settingsTask]);
@@ -253,7 +253,7 @@ ${fill(ph.text)}
     }
     on(r.save, 'click', () => withBusy(r.save, async () => { await persist(); toast(t('Saved'), 'ok'); }));
 
-    // ---------- старт ----------
+    // ---------- start ----------
     let en, ru, settings;
     try {
       [en, ru, settings, meta, bots, providers] = await Promise.all([api.prompts('en'), api.prompts('ru'), api.settings(), api.meta(), api.bots(), api.providers()]);
@@ -264,7 +264,7 @@ ${fill(ph.text)}
     if (signal.aborted) return null;
     saved = { prompts: { en, ru }, settings };
     draft = clone(saved);
-    // по умолчанию — версия игры из настроек, а в режиме «авто» — язык интерфейса
+    // default: the game version from settings, or the UI language in auto mode
     version = VERSIONS.includes(settings.game_language) ? settings.game_language : uiLang();
     botId = bots[0]?.id ?? null;
     phase = firstPhase(game);

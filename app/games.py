@@ -1,7 +1,7 @@
-"""Логика игр. Бот реагирует на состояние комнаты (bc:room) и своего телефона (bc:customer:<id>).
+"""Game logic. A bot reacts to the room state (bc:room) and its own phone state (bc:customer:<id>).
 
-Форматы сообщений взяты из официального клиента jackbox.tv (pp3-quiplash2, pp3-pollposition, pp6-triviadeath2).
-Файлы игры с правильными ответами не используются — модель знает ровно то, что видит игрок.
+Message formats are taken from the official jackbox.tv client (pp3-quiplash2, pp3-pollposition, pp6-triviadeath2).
+Game files with correct answers are not used: the model knows exactly what a player sees.
 """
 import asyncio
 import json
@@ -24,7 +24,7 @@ def clean(text):
 
 
 def render(tpl, vars_):
-    """Подставляет {переменные}; английские имена ({question}) — синонимы русских ключей (VAR_ALIASES)."""
+    """Fills in {variables}; English names ({question}) are aliases of the Russian keys (VAR_ALIASES)."""
     def sub(m):
         k = m.group(1)
         k = k if k in vars_ else VAR_ALIASES.get(k, k)
@@ -73,18 +73,18 @@ class BotPlayer:
         self.memory = []
         self.done = set()
         self.tasks = set()
-        self.status = "connecting"  # код статуса; подписи — в панели
-        self.thinking = 0           # сколько запросов к модели идёт прямо сейчас
+        self.status = "connecting"  # status code; labels live in the panel
+        self.thinking = 0           # how many model requests are running right now
         self.last_ms = None
         self.stats = {"calls": 0, "ms": 0, "errors": 0}
         mode = getattr(session, "game_language", "auto")
         self.lang = mode if mode in LANGS else "en"
-        # английский клиент принимает в нике только латиницу — иначе имя превратится в пустое/«????»
+        # the English client accepts only Latin letters in a nickname, otherwise the name becomes empty/"????"
         nick = latin_name(cfg["name"]) if mode == "en" else cfg["name"]
         self.client = EcastClient(session.code, nick, session.host, self.on_entity, self.on_status,
                                   session.traffic, user_id=stable_user_id(session.code, cfg["id"]))
 
-    # ---------- связь ----------
+    # ---------- connection ----------
     @property
     def name(self):
         return self.cfg["name"]
@@ -111,7 +111,7 @@ class BotPlayer:
             self.s.emit("error", bot=self.cfg["id"], name=self.name, text=f"{type(e).__name__}: {e}")
 
     def spawn(self, key, coro_fn, *args):
-        """Запускает действие один раз на ключ и не блокирует приём сообщений."""
+        """Runs an action once per key without blocking message handling."""
         if key in self.done:
             return
         self.done.add(key)
@@ -133,23 +133,23 @@ class BotPlayer:
             await asyncio.sleep(random.uniform(lo, hi) / 1000)
         await self.client.send(body)
 
-    # ---------- язык ----------
+    # ---------- language ----------
     def use_lang(self, *texts):
-        """Язык ответов: из настроек или (режим auto) по тексту игры; запоминается для следующих экранов."""
+        """Answer language: from settings or (auto mode) by the game text; remembered for the next screens."""
         mode = getattr(self.s, "game_language", "auto")
         self.lang = mode if mode in LANGS else detect(*texts, default=self.lang)
         return self.lang
 
     def t(self, key, **kw):
-        """Фраза для промта/памяти на языке игры."""
+        """A phrase for the prompt/memory in the game language."""
         text = TEXT[self.lang][key]
         return text.format(**kw) if kw else text
 
     def fit(self, text, limit=45):
-        """Ответ, который игра примет: английская версия выкидывает кириллицу и эмодзи — переводим в латиницу."""
+        """An answer the game will accept: the English version drops Cyrillic and emoji, so transliterate to Latin."""
         return cut(latin_safe(text) if self.lang == "en" else text, limit)
 
-    # ---------- память и запросы ----------
+    # ---------- memory and requests ----------
     def remember(self, line):
         self.memory.append(line)
         self.memory = self.memory[-50:]
@@ -171,7 +171,7 @@ class BotPlayer:
 
     async def ask(self, phase, vars_, show=None, image=None):
         msgs, ph = self.build_messages(phase, vars_)
-        if image:  # data:-URL картинки: OpenAI-совместимый формат content-частей
+        if image:  # image data: URL, OpenAI-compatible content-part format
             msgs[-1]["content"] = [{"type": "text", "text": msgs[-1]["content"]},
                                    {"type": "image_url", "image_url": {"url": image}}]
         prov = store.provider(self.cfg["provider"])
@@ -182,7 +182,7 @@ class BotPlayer:
         self.thinking += 1
         try:
             r = await self.s.llm.chat(prov, self.cfg["model"], msgs, self.cfg.get("temperature", 0.9),
-                                      # думающим моделям нужен запас токенов на рассуждение: min_tokens в настройках бота
+                                      # thinking models need spare tokens for reasoning: min_tokens in the bot settings
                                       max(ph.get("max_tokens", 60), int(self.cfg.get("min_tokens") or 0)),
                                       one_line=ph.get("format") != "ranking",
                                       extra_body=self.cfg.get("extra_body"))
@@ -199,7 +199,7 @@ class BotPlayer:
     def say(self, kind, text, ms=None, **extra):
         self.s.emit(kind, bot=self.cfg["id"], name=self.name, text=text, ms=ms, **extra)
 
-    # ---------- переопределяется в играх ----------
+    # ---------- overridden in games ----------
     def on_room(self):
         pass
 
@@ -248,7 +248,7 @@ class Quiplash2(BotPlayer):
     async def _note_round(self):
         self.s.emit("info", text=ui("Round {n}", n=self.room.get("round", "?")), once=f"round{self.room.get('round')}")
 
-    # --- ответы ---
+    # --- answers ---
     @staticmethod
     def _kind(q):
         t = q.get("type")
@@ -299,7 +299,7 @@ class Quiplash2(BotPlayer):
         self.remember(self.t("mem_answer", q=prompt, a=text))
         self.say("answer", text, ms, question=prompt)
 
-    # --- голосование ---
+    # --- voting ---
     def maybe_vote(self):
         if self.me.get("doneVoting") or self.me.get("state") not in (None, "Gameplay_Vote"):
             return
@@ -315,7 +315,7 @@ class Quiplash2(BotPlayer):
                 continue
             opts.append((k, clean(choices[k])))
         if any(t.lower() in self.my_answers for _, t in opts) or len(opts) < 2:
-            return  # это наша пара — за себя не голосуем
+            return  # this is our matchup, don't vote for ourselves
         prompt = clean((self.room.get("question") or {}).get("prompt"))
         self.spawn(("vote", prompt, tuple(k for k, _ in opts)), self.vote, prompt, opts)
 
@@ -382,9 +382,9 @@ class PollPosition(BotPlayer):
 
     def __init__(self, *a):
         super().__init__(*a)
-        self.pending = None  # (вопрос, наша оценка)
+        self.pending = None  # (question, our estimate)
         self.seen_results = set()
-        self.topic = ""  # название опроса: в ChooseUpOrDown поле survey уже занято самим вопросом
+        self.topic = ""  # poll title: in ChooseUpOrDown the survey field already holds the question itself
 
     def on_room(self):
         self.step()
@@ -399,7 +399,7 @@ class PollPosition(BotPlayer):
         if r in ("Gameplay_ShowQuestion", "Gameplay_EnterPercentage") and self.room.get("survey"):
             self.topic = clean(self.room["survey"])
         if i == "Lobby_ChooseCharacter" and not self.me.get("character") and self.room.get("characters"):
-            # ключ меняется вместе с набором занятых персонажей: если нашего перехватили, выбираем снова
+            # the key changes with the set of taken characters: if ours was taken, choose again
             taken = tuple(sorted(str(c.get("id")) for c in self.room["characters"] if isinstance(c, dict) and c.get("isSelected")))
             self.spawn(("char", taken), self.pick_character)
         elif i == "Gameplay_PickCategory" and self.me.get("choices"):
@@ -447,7 +447,7 @@ class PollPosition(BotPlayer):
         self.say("answer", f"{n}%", ms, question=q)
 
     def _their_number(self):
-        # игра присылает число только текстом: «Профессор ответил 25% »
+        # the game sends the number only as text: "Professor answered 25%"
         m = re.search(r"(\d{1,3})\s*%", str(self.room.get("question") or ""))
         if m and 0 <= int(m.group(1)) <= 100:
             return f"{int(m.group(1))}%"
@@ -461,7 +461,7 @@ class PollPosition(BotPlayer):
         ch = [c for c in (self.room.get("choices") or []) if isinstance(c, dict)]
         if not ch:
             return
-        question = clean(self.room.get("survey") or "") or q  # здесь survey — сам вопрос, question — «X ответил N%»
+        question = clean(self.room.get("survey") or "") or q  # here survey is the question itself, question is "X answered N%"
         self.use_lang(question, q)
         labels = [clean(c.get("text")) or self.t("updown").get(str(c.get("id")).lower(), str(c.get("id")).replace("_", " "))
                   for c in ch]
@@ -492,7 +492,7 @@ class PollPosition(BotPlayer):
         self.say("vote", free[i][1], ms, question=q)
 
     def _check_result(self):
-        """Когда игра показывает правильный процент всем — запоминаем для следующих раундов."""
+        """When the game shows the correct percentage to everyone, remember it for the next rounds."""
         if not self.pending:
             return
         q, n = self.pending
@@ -516,15 +516,15 @@ class PollPosition(BotPlayer):
 
 
 # =====================================================================
-# Trivia Murder Party 2 (pp6-triviadeath2). Клиент собирает «blob» = комната без audience + личное
-# состояние игрока, экран выбирается по blob.state. Искажения «безумия» (Scramble/BTTF) делает сам
-# клиент, боту приходит чистый текст.
-TAG_ALIASES = {"triviadeath2-tjsp": "triviadeath2"}  # та же игра в Party Starter
+# Trivia Murder Party 2 (pp6-triviadeath2). The client builds a "blob" = room without audience + the player's
+# own state; the screen is chosen by blob.state. "Madness" distortions (Scramble/BTTF) are done by the
+# client itself; the bot gets clean text.
+TAG_ALIASES = {"triviadeath2-tjsp": "triviadeath2"}  # the same game in Party Starter
 _MATH = re.compile(r"(-?\d+)\s*([+\-−–*×x/÷:])\s*(-?\d+)")
 
 
 def solve_math(text):
-    """«7 + 12» → 19; None, если пример не распознан."""
+    """'7 + 12' -> 19; None if the expression isn't recognized."""
     m = _MATH.search(clean(text))
     if not m:
         return None
@@ -546,7 +546,7 @@ def _num(text):
 
 
 def doodle(color="#000000", n=4, w=300, h=300):
-    """Каракули для рисовальных мини-игр: несколько ломаных в формате клиента (x,y|x,y)."""
+    """Scribbles for drawing minigames: a few polylines in the client format (x,y|x,y)."""
     lines = []
     for _ in range(n):
         x, y = random.randint(w // 6, w * 5 // 6), random.randint(h // 6, h * 5 // 6)
@@ -560,8 +560,8 @@ def doodle(color="#000000", n=4, w=300, h=300):
 
 
 def text_lines(word, w, h, color="#000000", step=5):
-    """Слово штрихами: рисуем текст шрифтом в картинку и обводим строки пикселей горизонтальными линиями.
-    Без Pillow или шрифта возвращает [] — тогда будут каракули."""
+    """A word drawn with strokes: render the text with a font into an image and trace pixel rows with horizontal lines.
+    Returns [] without Pillow or a font; scribbles are used then."""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except ImportError:
@@ -608,8 +608,8 @@ _NUM_WORDS = {"одно": 1, "двух": 2, "трёх": 3, "трех": 3, "че�
 
 
 def letter_rule(prompt):
-    """«Десятибуквенные слова» / «слова из 7 букв» / «5-letter words» → 10 / 7 / 5. Модели плохо считают буквы,
-    поэтому такие категории проверяем кодом."""
+    """'Ten-letter words' / '7-letter words' / '5-letter words' -> 10 / 7 / 5. Models are bad at counting letters,
+    so such categories are checked in code."""
     p = clean(prompt).lower()
     m = re.search(r"(\d+)\s*-?\s*(?:буквенн|letter)", p) or re.search(r"из\s+(\d+)\s+букв", p)
     if m:
@@ -624,7 +624,7 @@ _REFUSAL = re.compile(r"I'?m Claude|I am Claude|I appreciate|I need to be (direc
 
 class TriviaDeath2(BotPlayer):
     tag = "triviadeath2"
-    SPEED = 1.0  # множитель пауз между «касаниями» (selftest ставит 0)
+    SPEED = 1.0  # multiplier for pauses between "taps" (selftest sets 0)
     HANDLERS = {"MakeSingleChoice": "choice", "EnterSingleText": "text", "Draw": "draw", "Grid": "grid",
                 "Scratch": "scratch", "Dial": "dial", "Drop": "drop"}
 
@@ -635,12 +635,12 @@ class TriviaDeath2(BotPlayer):
 
     async def ask(self, phase, vars_, show=None, image=None):
         r = await super().ask(phase, vars_, show, image)
-        if _REFUSAL.search(r.get("text") or ""):  # модель вышла из роли — считаем, что ответа нет
+        if _REFUSAL.search(r.get("text") or ""):  # the model broke character, treat it as no answer
             self.stats["errors"] += 1
             raise LLMError(ui("model refused to answer: {t}", t=r["text"][:60]))
         return r
 
-    # ---------- состояние ----------
+    # ---------- state ----------
     @property
     def blob(self):
         room = {k: v for k, v in self.room.items() if k != "audience"}
@@ -663,9 +663,9 @@ class TriviaDeath2(BotPlayer):
 
     @staticmethod
     def _done(b):
-        """Как parseBlob(): выбор уже сделан (chosen есть) или игра показывает doneText."""
+        """Like parseBlob(): the choice is already made (chosen is set) or the game shows doneText."""
         dt = b.get("doneText")
-        if b.get("state") == "EnterSingleText" and b.get("entry") is True:  # ответ принят
+        if b.get("state") == "EnterSingleText" and b.get("entry") is True:  # answer accepted
             return True
         if isinstance(dt, dict) and (dt.get("html") or dt.get("text")) or isinstance(dt, str) and dt:
             return True
@@ -688,10 +688,10 @@ class TriviaDeath2(BotPlayer):
             self._lobby(b)
         handler = self.HANDLERS.get(st)
         if not handler or self._done(b) or (st == "MakeSingleChoice" and self._prompt(b) == "What do you want to do?"):
-            self.sig = None  # экран сменился — следующий такой же вопрос считается новым
+            self.sig = None  # the screen changed, the next identical question counts as new
             return
-        # ключ без choices: игра может дизейблить варианты на лету, отвечать второй раз нельзя
-        # error — игра отклонила ответ («Некорректный ввод!»), тогда отвечаем заново
+        # key without choices: the game may disable options on the fly, answering twice is not allowed
+        # error means the game rejected the answer ("Invalid input!"), so answer again
         sig = json.dumps([st, b.get("prompt"), b.get("choiceId"), b.get("entryId"), b.get("error")], ensure_ascii=False,
                          sort_keys=True, default=str)
         if sig != self.sig:
@@ -711,7 +711,7 @@ class TriviaDeath2(BotPlayer):
 
     @staticmethod
     def _options(b):
-        """[(значение для choice, action, текст)] — key варианта или его позиция, как в клиенте."""
+        """[(value for choice, action, text)]: the option key or its position, as in the client."""
         out = []
         for pos, c in enumerate(b.get("choices") or []):
             if not isinstance(c, dict) or c.get("disabled") or c.get("action") not in (None, "choose"):
@@ -729,7 +729,7 @@ class TriviaDeath2(BotPlayer):
             return self.t("hint_rules")
         return self.t("hint_trivia")
 
-    # ---------- экраны ----------
+    # ---------- screens ----------
     async def choice(self, b):
         if any(isinstance(c, dict) and c.get("className") in ("selected", "unselected", "submit")
                for c in b.get("choices") or []):
@@ -773,7 +773,7 @@ class TriviaDeath2(BotPlayer):
         self.say("answer", ", ".join(opts[i][2] for i in picked), ms, question=prompt)
 
     async def final(self, b):
-        """Финал-побег: варианты переключаются (selected/unselected) по одному, потом кнопка «Отправить»."""
+        """Escape finale: options are toggled (selected/unselected) one by one, then the Submit button."""
         prompt = self._prompt(b)
         ch = b.get("choices") or []
         items = [(pos, clean(c.get("text") or c.get("html") or ""), c.get("className") == "selected")
@@ -795,7 +795,7 @@ class TriviaDeath2(BotPlayer):
                 self.say("error", ui("model didn't answer, picking at random: {e}", e=e)[:200])
             picked = picked or {random.randrange(len(items))}
         for i, (pos, _, selected) in enumerate(items):
-            if (i in picked) != selected:  # каждое нажатие переключает вариант
+            if (i in picked) != selected:  # each tap toggles an option
                 await self.send({"action": "choose", "choice": pos})
                 await self._pause(0.2, 0.4)
         if submit is not None:
@@ -826,7 +826,7 @@ class TriviaDeath2(BotPlayer):
     def _number_rule(b, prompt, lo, hi):
         eid, p = str(b.get("entryId") or "").lower(), prompt.lower()
         if "donation" in eid or "отдать" in p:
-            # 0 = остаться самым богатым (смерть), 300+ сверх чужого = перекормить (смерть донору)
+            # 0 = stay the richest (death), 300+ over someone else = overfeed (death for the donor)
             return random.randint(max(lo, 120), min(hi, 290))
         if "greed" in eid or "жадн" in p or "возьм" in p:
             return random.choice([n for n in range(int(lo + (hi - lo) * 0.35), int(lo + (hi - lo) * 0.65)) if n % 50])
@@ -846,7 +846,7 @@ class TriviaDeath2(BotPlayer):
             nums, ms = [int(x) for x in re.findall(r"\d+", r["text"]) if lo <= int(x) <= hi], r["ms"]
         except LLMError as e:
             self.say("error", ui("model didn't answer, picking a random number: {e}", e=e)[:200])
-        if not nums:  # модель не дала число в диапазоне — стратегия по умолчанию для мини-игры или случайное
+        if not nums:  # the model gave no number in range: minigame default strategy or random
             nums = [self._number_rule(b, prompt, lo, hi) or random.randint(lo, hi)]
         n = str(nums[0])
         self.last_entry = n
@@ -856,7 +856,7 @@ class TriviaDeath2(BotPlayer):
 
     async def text(self, b):
         prompt = self._prompt(b)
-        if b.get("inputType") == "number":  # пожертвования, жадность: игра принимает только число
+        if b.get("inputType") == "number":  # donations, greed: the game accepts only a number
             return await self.number(b, prompt)
         limit = int(b.get("maxLength") or 45)
         self.use_lang(prompt)
@@ -870,13 +870,13 @@ class TriviaDeath2(BotPlayer):
         except LLMError as e:
             self.say("error", ui("model didn't answer: {e}", e=e)[:200])
             return
-        if not funny:  # нужно слово, а не шутка: отрезаем «Скорпион, потому что…»
+        if not funny:  # a word is needed, not a joke: cut off "Scorpion, because..."
             entry = re.split(r"[,.;:!?(—–]| - ", entry)[0]
         entry = self.fit(entry.strip(" «»\"'"), limit)
         if not entry:
             return
         self.last_entry = entry
-        if b.get("textKey"):  # клиент в этом случае обновляет text-сущность вместо сообщения хосту
+        if b.get("textKey"):  # in this case the client updates a text entity instead of messaging the host
             await self.client.update_text(b["textKey"], entry)
         else:
             await self.send({"action": "write", "entry": entry})
@@ -894,7 +894,7 @@ class TriviaDeath2(BotPlayer):
         lines = (text_lines(word, w, h, color) if word else []) or doodle(color, 4, w, h)
         await self._pause(1, 3)
         if b.get("live"):
-            # «Зеркало»: игра показывает штрихи вживую, кнопки отправки нет — шлём линии по одной, как клиент
+            # "Mirror": the game shows strokes live and has no submit button, so send lines one by one like the client
             for ln in lines:
                 if self.blob.get("state") != "Draw":
                     break
@@ -910,7 +910,7 @@ class TriviaDeath2(BotPlayer):
         self.say("answer", ui("wrote {w}", w=word) if word else ui("drew a doodle"), None, question=self._prompt(b))
 
     async def _mirror_word(self):
-        """Слово для зеркала придумывает модель; если не ответила — берём из запасного списка."""
+        """The model comes up with the word for the mirror; if it doesn't answer, take one from the fallback list."""
         try:
             r = await self.ask("text", {"вопрос": self.t("mirror_question"), "лимит": 10,
                                         "подсказка": self.t("mirror_hint")})
@@ -935,7 +935,7 @@ class TriviaDeath2(BotPlayer):
                               y=y + 1, x=x + 1), None)
 
     async def scratch(self, b):
-        # 7 долларов и 2 черепа: трёх долларов хватает для выживания, дальше рисковать незачем
+        # 7 dollars and 2 skulls: three dollars are enough to survive, no point risking more
         for idx in random.sample(range(len(b.get("choices") or []) or 9), 3):
             await self._pause(0.6, 1.2)
             if self.blob.get("state") != "Scratch":
@@ -988,7 +988,7 @@ _photo_cache = {}
 
 
 def sti_photos():
-    """Фото финала: имя файла → описание (alt-тексты клиента jackbox.tv) и адрес картинки."""
+    """Finale photos: file name -> description (jackbox.tv client alt texts) and image URL."""
     if "list" not in _photo_cache:
         p = store.DATA / "sti_photos.json"
         _photo_cache["list"] = json.loads(p.read_text("utf-8")) if p.exists() else {}
@@ -996,7 +996,7 @@ def sti_photos():
 
 
 async def photo_data_url(url):
-    """Картинка для vision-модели как data:-URL (провайдер может не уметь скачивать сам). None — не вышло."""
+    """Image for a vision model as a data: URL (the provider may not be able to download it). None on failure."""
     if url in _photo_cache:
         return _photo_cache[url]
     import base64
@@ -1013,13 +1013,13 @@ async def photo_data_url(url):
 
 
 class SurviveTheInternet(TriviaDeath2):
-    """Выжить в интернете (pp4): ответ на вопрос → подстава чужого ответа → голосование; финал — подпись к фото."""
+    """Survive the Internet (pp4): answer a question -> twist someone else's answer -> vote; finale is a photo caption."""
     tag = "survivetheinternet"
     HANDLERS = {"EnterSingleText": "write", "Voting": "vote_post", "MakeSingleChoice": "pick"}
 
     @property
     def can_start(self):
-        # сырой blob лобби: isAllowedToStartGame + lobbyState (клиент сам переводит их в playerCanStartGame/gameCanStart)
+        # raw lobby blob: isAllowedToStartGame + lobbyState (the client turns them into playerCanStartGame/gameCanStart itself)
         b = self.blob
         return bool(b.get("state") == "Lobby" and (b.get("isAllowedToStartGame") or b.get("playerCanStartGame"))
                     and (b.get("lobbyState") in ("CanStart", "PostGame") or b.get("gameCanStart")))
@@ -1037,7 +1037,7 @@ class SurviveTheInternet(TriviaDeath2):
 
     @staticmethod
     def _text(b):
-        """Части задания (над/в/под чёрной плашкой) и имя фото финала, если оно есть."""
+        """Task parts (above/in/below the black bar) and the finale photo name, if any."""
         t = b.get("text")
         t = {"blackBox": t} if isinstance(t, str) else t if isinstance(t, dict) else {}
         raw = " ".join(str(t.get(k) or "") for k in ("aboveBlackBox", "blackBox", "belowBlackBox", "thumbnail"))
@@ -1063,7 +1063,7 @@ class SurviveTheInternet(TriviaDeath2):
         self.spawn(("sti", self.seq), getattr(self, handler), b)
 
     async def _photo(self, name):
-        """(описание, картинка для vision или None)."""
+        """(description, image for vision or None)."""
         info = sti_photos().get(name or "") or {}
         desc = info.get("desc") or self.t("photo_unknown")
         image = await photo_data_url(info["url"]) if self.cfg.get("vision") and info.get("url") else None
@@ -1075,7 +1075,7 @@ class SurviveTheInternet(TriviaDeath2):
         if image:
             try:
                 return await self.ask(phase, {**vars_, "зрение": self.t("vision_on")}, show, image)
-            except LLMError as e:  # модель не принимает картинки — хватит и описания
+            except LLMError as e:  # the model doesn't accept images, the description is enough
                 self.say("error", ui("picture rejected, answering from the description: {e}", e=e)[:200])
         return await self.ask(phase, {**vars_, "зрение": self.t("vision_off")}, show)
 
@@ -1106,7 +1106,7 @@ class SurviveTheInternet(TriviaDeath2):
             return
         self.last_entry = entry
         body = {"action": "write", "entry": entry}
-        if b.get("textKey"):  # так делает клиент pp4: ключ текста едет в том же сообщении
+        if b.get("textKey"):  # the pp4 client does this: the text key goes in the same message
             body.update(textKey=b["textKey"], val=entry)
         await self.send(body)
         self.remember(self.t("mem_pick", q=cut(task, 80), a=entry))
@@ -1121,7 +1121,7 @@ class SurviveTheInternet(TriviaDeath2):
         if not opts:
             return
         own = [o for o in opts if self.last_entry and self.last_entry in self._post(o[1])]
-        if len(opts) - len(own) >= 1:  # за свой пост не голосуем
+        if len(opts) - len(own) >= 1:  # don't vote for our own post
             opts = [o for o in opts if o not in own]
         self.use_lang(self._prompt(b), *(self._post(c) for _, c in opts))
         texts = []

@@ -1,9 +1,9 @@
-"""Мини-замена FastAPI на Starlette для Android.
+"""Minimal FastAPI replacement on top of Starlette for Android.
 
-На Android нет сборки pydantic-core, поэтому настоящий FastAPI не ставится. Здесь только то
-подмножество API, которое использует app/main.py: маршруты get/put/post/websocket, mount,
-on_event("startup"/"shutdown"), параметры пути и Body (один Body — всё тело запроса,
-несколько — ключи JSON-объекта, как в FastAPI), HTTPException с ответом {"detail": ...}.
+There is no pydantic-core build for Android, so the real FastAPI can't be installed. This is only the
+API subset used by app/main.py: get/put/post/websocket routes, mount,
+on_event("startup"/"shutdown"), path parameters and Body (a single Body gets the whole request body,
+several get keys of the JSON object, as in FastAPI), HTTPException with a {"detail": ...} response.
 """
 import contextlib
 import inspect
@@ -51,7 +51,7 @@ async def _call_args(fn, request):
     if not bodies:
         return kwargs
     data = await _read_json(request)
-    if len(bodies) == 1:  # как в FastAPI: единственный Body-параметр получает всё тело
+    if len(bodies) == 1:  # as in FastAPI: a single Body parameter gets the whole body
         name, b = bodies[0]
         if data is _REQUIRED:
             if b.default is _REQUIRED:
@@ -81,7 +81,7 @@ def _endpoint(fn):
             return JSONResponse({"detail": str(e)}, status_code=422)
         if inspect.iscoroutinefunction(fn):
             result = await fn(**kwargs)
-        else:  # синхронные обработчики FastAPI тоже выполняет в пуле потоков
+        else:  # FastAPI also runs sync handlers in a thread pool
             result = await run_in_threadpool(fn, **kwargs)
         return result if isinstance(result, Response) else JSONResponse(result)
     handler.__name__ = getattr(fn, "__name__", "handler")

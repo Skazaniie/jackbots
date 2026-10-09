@@ -1,6 +1,6 @@
-"""Клиент Jackbox ecast (api/v2). Игры PP3/PP4 идут через него же с ключами bc:room / bc:customer:<id>.
+"""Jackbox ecast client (api/v2). PP3/PP4 games also go through it with bc:room / bc:customer:<id> keys.
 
-Бот видит только то, что игра шлёт на телефон обычному игроку — те же данные, что и jackbox.tv.
+The bot sees only what the game sends to a regular player's phone: the same data as jackbox.tv.
 """
 import asyncio
 import json
@@ -30,8 +30,8 @@ async def room_info(code, host):
 
 
 def stable_user_id(code, bot_id):
-    """Один и тот же user-id для бота в комнате: при перезапуске игра переподключает
-    прежнего игрока (с его VIP и персонажем), а не создаёт «призрака» с новым именем."""
+    """The same user-id for a bot in the room: on restart the game reconnects
+    the previous player (with their VIP and character) instead of creating a "ghost" with a new name."""
     return str(uuid.uuid5(uuid.NAMESPACE_URL, f"jackbox-ai:{code.upper()}:{bot_id}"))
 
 
@@ -66,8 +66,8 @@ class EcastClient:
                     async for raw in ws:
                         await self._handle(raw)
                         if self.welcomed:
-                            # счётчик сбрасываем только после реального входа: иначе сервер, который
-                            # пускает и сразу выгоняет (комната полная), давал бы бесконечные попытки
+                            # reset the counter only after a real join: otherwise a server that
+                            # lets you in and kicks you right away (full room) would give endless retries
                             tries = 0
             except asyncio.CancelledError:
                 raise
@@ -122,7 +122,7 @@ class EcastClient:
                 if val is not None:
                     await self.on_entity(key, val)
         elif op in ("object", "text"):
-            val = res.get("val", res.get("text"))  # text-сущности приходят в поле text
+            val = res.get("val", res.get("text"))  # text entities come in the text field
             if isinstance(val, str):
                 try:
                     val = json.loads(val)
@@ -136,17 +136,17 @@ class EcastClient:
             self.closing = True
 
     async def send(self, body):
-        """Аналог client.send('SendMessageToRoomOwner', body) из jackbox.tv."""
+        """Same as client.send('SendMessageToRoomOwner', body) in jackbox.tv."""
         if self.pid is None:
             return False
         return await self._op("client/send", {"from": self.pid, "to": 1, "body": body})
 
     async def update_text(self, key, val):
-        """Аналог client.updateText(): игра читает ответ из text-сущности (textKey в состоянии)."""
+        """Same as client.updateText(): the game reads the answer from a text entity (textKey in the state)."""
         return await self._op("text/update", {"key": key, "val": val})
 
     async def update_object(self, key, val):
-        """Аналог client.updateObject() (objectKey в состоянии, например рисунок)."""
+        """Same as client.updateObject() (objectKey in the state, e.g. a drawing)."""
         return await self._op("object/update", {"key": key, "val": val})
 
     async def _op(self, opcode, params):
@@ -160,7 +160,7 @@ class EcastClient:
 
 
 def _entity_value(ent):
-    # формат: ["object", {"key":..., "val":..., "version":...}, {...}] или сразу dict
+    # format: ["object", {"key":..., "val":..., "version":...}, {...}] or a dict right away
     if isinstance(ent, list):
         ent = next((x for x in ent if isinstance(x, dict) and ("val" in x or "text" in x)), None)
     if isinstance(ent, dict) and ("val" in ent or "text" in ent):

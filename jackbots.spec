@@ -1,5 +1,5 @@
-# PyInstaller: сборка JackBOTS.exe одним файлом. Запуск: tools\build_exe.bat
-# Ресурсы (web, assets, data) кладутся внутрь exe; config\ и logs\ создаются рядом с exe (см. app/store.py).
+# PyInstaller: builds JackBOTS.exe as a single file. Run: tools\build_exe.bat
+# Resources (web, assets, data) go inside the exe; config\ and logs\ are created next to the exe (see app/store.py).
 from PyInstaller.utils.hooks import collect_submodules
 
 a = Analysis(
@@ -14,6 +14,6 @@ exe = EXE(
     pyz, a.scripts, a.binaries, a.datas,
     name="JackBOTS",
     icon="branding/jackbots.ico",
-    console=True,  # окно консоли = сервер работает; закрыл окно — панель остановилась
+    console=True,  # console window = server is running; closing it stops the panel
     upx=False,
 )

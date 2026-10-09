@@ -1,4 +1,4 @@
-"""Игровая сессия: набор ботов в одной комнате + лента событий для панели."""
+"""Game session: a set of bots in one room + an event feed for the panel."""
 import asyncio
 import collections
 import itertools
@@ -12,13 +12,13 @@ from .lang import GAME_TITLES, ui, ui_lang
 
 
 class Hub:
-    """Рассылка событий во все открытые вкладки панели."""
+    """Broadcasts events to all open panel tabs."""
 
     def __init__(self):
         self.feed = collections.deque(maxlen=300)
         self.queues = set()
         self.once = set()
-        self._ids = itertools.count(1)  # id события — ключ для панели, чтобы не перерисовывать ленту
+        self._ids = itertools.count(1)  # event id: a key for the panel so the feed isn't redrawn
 
     def emit(self, kind, **data):
         once = data.pop("once", None)
@@ -46,7 +46,7 @@ class Session:
         self.tasks = []
         self.traffic = None
         self.started = None
-        self.game_language = "auto"  # "auto" | "en" | "ru" — фиксируется при запуске ботов
+        self.game_language = "auto"  # "auto" | "en" | "ru", fixed when the bots start
 
     def emit(self, kind, **data):
         self.hub.emit(kind, **data)
@@ -79,7 +79,7 @@ class Session:
         self.hub.once.clear()
         self.started = time.time()
         self.emit("info", text=ui("Room {code}: {game}. Starting bots: {n}", code=code, game=titles[tag], n=len(bots)))
-        # прогрев соединений с провайдерами — параллельно с подключением к игре
+        # warm up provider connections in parallel with joining the game
         provs = {b["provider"] for b in bots}
         for pid in provs:
             p = store.provider(pid)
@@ -90,7 +90,7 @@ class Session:
             bot = cls(self, b)
             self.bots.append(bot)
             self.tasks.append(asyncio.create_task(bot.client.run()))
-            await asyncio.sleep(0.35)  # порядок входа = порядок в списке
+            await asyncio.sleep(0.35)  # join order = list order
         return self.status()
 
     async def stop(self):

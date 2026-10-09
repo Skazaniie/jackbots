@@ -1,13 +1,13 @@
 /**
- * Справочник для интерфейса: картинки игр, иконки провайдеров, пресеты.
- * Чтобы добавить игру в панель — допиши её сюда (логика игры живёт в app/games.py).
+ * UI reference data: game images, provider icons, presets.
+ * To add a game to the panel, add it here (the game logic lives in app/games.py).
  */
 import { lang, t } from './i18n.js';
 
 const ART = '/assets/web/';
 export const ICON_DIR = '/assets/icons/';
 
-// titles — название в английской и русской версии игры; title/about — на языке интерфейса
+// titles: the name in the English and Russian game versions; title/about: in the UI language
 const game = (tag, titles, about, players, art, logo) => ({
   tag, titles, players, art: ART + art, logo: ART + logo,
   get title() { return titles[lang()] || titles.en; },
@@ -23,14 +23,14 @@ export const GAMES = [
 ];
 export const gameByTag = tag => GAMES.find(g => g.tag === tag);
 
-/** Иконки из assets/icons — положи туда свой .svg и добавь имя в список. */
+/** Icons from assets/icons: put your .svg there and add its name to the list. */
 export const ICONS = ['openai.svg', 'claude-color.svg', 'anthropic.svg', 'gemini-color.svg', 'deepseek-color.svg',
   'openrouter.svg', 'ollama.svg', 'grok.svg', 'mistral-color.svg', 'qwen-color.svg', 'meta-color.svg'];
 
 export const COLORS = ['#10a37f', '#d97757', '#4285f4', '#4d6bfe', '#e3172d', '#f5b400',
   '#a855f7', '#ec4899', '#22c55e', '#f97316', '#06b6d4', '#8a8f98'];
 
-/** Быстрые заготовки OpenAI-совместимых провайдеров. */
+/** Quick presets for OpenAI-compatible providers. */
 export const PROVIDER_PRESETS = [
   { name: 'Groq', base_url: 'https://api.groq.com/openai/v1', icon: 'meta-color.svg', color: '#f55036' },
   { name: 'LM Studio', base_url: 'http://localhost:1234/v1', icon: 'qwen-color.svg', color: '#7b61ff' },
@@ -40,7 +40,7 @@ export const PROVIDER_PRESETS = [
   { name: 'Qwen (DashScope)', base_url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1', icon: 'qwen-color.svg', color: '#615ced' },
 ];
 
-/** Пустой провайдер — поля совпадают с PROVIDER_FIELDS в app/store.py. */
+/** Empty provider: the fields match PROVIDER_FIELDS in app/store.py. */
 export function newProvider(id, preset) {
   const p = preset || {};
   return {
@@ -50,11 +50,11 @@ export function newProvider(id, preset) {
   };
 }
 
-/** Адрес иконки; пустое имя → иконка по умолчанию. */
+/** Icon URL; an empty name -> the default icon. */
 export const iconUrl = icon => ICON_DIR + (icon || 'openai.svg');
 export const providerIcon = (providers, id) => iconUrl(providers.find(p => p.id === id)?.icon);
 
 /** 1400 → «1.4s» */
 export const secs = ms => (ms === null || ms === undefined ? '—' : t('{n}s', { n: (ms / 1000).toFixed(1) }));
-/** Оценка скорости ответа для цвета штампа. */
+/** Answer speed rating for the stamp color. */
 export const speedKind = ms => (ms === null || ms === undefined ? 'wait' : ms < 1000 ? 'ok' : ms < 1800 ? 'gold' : 'bad');

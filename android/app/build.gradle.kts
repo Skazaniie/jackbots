@@ -5,8 +5,8 @@ plugins {
     id("com.chaquo.python")
 }
 
-// Подпись релиза: android/keystore.properties (в .gitignore) с полями storeFile, storePassword, keyAlias, keyPassword.
-// Без файла релиз подписывается debug-ключом — форк соберётся, но поверх официального APK не встанет.
+// Release signing: android/keystore.properties (gitignored) with storeFile, storePassword, keyAlias, keyPassword.
+// Without that file the release is signed with the debug key: a fork still builds, but won't install over the official APK.
 val keystoreFile = rootProject.file("keystore.properties")
 val keystore = Properties().apply { if (keystoreFile.exists()) keystoreFile.inputStream().use { load(it) } }
 
@@ -44,7 +44,7 @@ android {
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/panel"))
 }
 
-// Панель (app/, web/, assets/, data/) не дублируется в android/: перед сборкой копируется из корня репозитория.
+// The panel (app/, web/, assets/, data/) is not duplicated in android/: it is copied from the repo root before the build.
 val syncPanel by tasks.registering(Sync::class) {
     from(rootProject.projectDir.parentFile) {
         include("app/**", "web/**", "assets/**", "data/**")
@@ -56,7 +56,7 @@ tasks.named("preBuild") { dependsOn(syncPanel) }
 
 chaquopy {
     defaultConfig {
-        version = "3.13"  // для сборки нужен Python 3.13 в PATH (python3.13 или py -3.13)
+        version = "3.13"  // the build needs Python 3.13 on PATH (python3.13 or py -3.13)
         pip {
             install("starlette")
             install("uvicorn")

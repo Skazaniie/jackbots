@@ -1,14 +1,14 @@
 /**
- * Живое соединение с сервером (WebSocket /ws): лента событий и состояние сессии.
- * Одно соединение на всю вкладку — оно не рвётся при переходах между страницами.
+ * Live connection to the server (WebSocket /ws): the event feed and session state.
+ * One connection per tab; it survives navigation between pages.
  *
- * События (addEventListener):
- *   'session'    — изменилось состояние сессии (detail: session)
- *   'feed'       — изменилась лента (detail: { added: [...] } или { reset: true })
- *   'connection' — соединение появилось/пропало (detail: { online })
+ * Events (addEventListener):
+ *   'session'    — the session state changed (detail: session)
+ *   'feed'       — the feed changed (detail: { added: [...] } or { reset: true })
+ *   'connection' — the connection appeared/dropped (detail: { online })
  */
 
-const FEED_LIMIT = 300;            // столько событий держим в памяти (как на сервере)
+const FEED_LIMIT = 300;            // how many events to keep in memory (same as the server)
 const RECONNECT_MS = [500, 1000, 2000, 4000];
 
 class Live extends EventTarget {
@@ -16,7 +16,7 @@ class Live extends EventTarget {
     super();
     this.session = { running: false, bots: [] };
     this.feed = [];
-    this.online = null;           // null — ещё не пробовали подключиться
+    this.online = null;           // null: haven't tried to connect yet
     this._attempt = 0;
     this._sessionJSON = '';
   }
@@ -47,7 +47,7 @@ class Live extends EventTarget {
     }
   }
 
-  /** Сервер шлёт состояние каждую секунду — оповещаем только при реальных изменениях. */
+  /** The server sends the state every second; notify only on real changes. */
   _setSession(session) {
     const json = JSON.stringify(session);
     if (json === this._sessionJSON) return;
@@ -56,7 +56,7 @@ class Live extends EventTarget {
     this._emit('session', session);
   }
 
-  /** Локально обновить сессию после ответа API, не дожидаясь сокета. */
+  /** Update the session locally after an API response, without waiting for the socket. */
   applySession(session) { if (session) this._setSession(session); }
 
   _setOnline(online) {

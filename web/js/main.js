@@ -1,4 +1,4 @@
-/** Точка входа панели: меню, стикер состояния, роутер и живое соединение. */
+/** Panel entry point: menu, state sticker, router and live connection. */
 import { $, html } from './dom.js';
 import { initLang, plural, t } from './i18n.js';
 import { live } from './live.js';
@@ -36,7 +36,7 @@ function highlightMenu(id) {
   }
 }
 
-/** Стикер внизу бокового меню: идёт ли игра прямо сейчас. */
+/** Sticker at the bottom of the side menu: whether a game is running right now. */
 function renderSideNote() {
   const s = live.session;
   const body = s.running

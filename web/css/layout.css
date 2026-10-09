@@ -1,17 +1,17 @@
 /* ==========================================================================
    JackBOTS · layout.css
-   Каркас: боковое меню на ПК, шапка + нижнее меню на телефоне.
-   Каркас рендерится один раз; при переходах меняется только <main>.
+   Layout: side menu on desktop, header + bottom menu on phones.
+   The layout renders once; navigation only replaces <main>.
    ========================================================================== */
 
 .app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; min-height: 100dvh; }
 
-/* ---------- Боковое меню (ПК) ---------- */
+/* ---------- Side menu (desktop) ---------- */
 .sidebar {
   position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column;
   padding: 34px 26px 26px; background: #fffdf6; box-shadow: 6px 0 18px -8px rgba(0, 0, 0, .25); z-index: 5;
 }
-/* дырочки от пружины по правому краю */
+/* spiral holes along the right edge */
 .sidebar::before { content: ''; position: absolute; top: 0; bottom: 0; right: -14px; width: 28px; background: radial-gradient(circle, var(--desk) 0 6px, transparent 7px) 0 0 / 28px 34px repeat-y; }
 
 .logo { position: relative; display: inline-block; align-self: flex-start; margin-bottom: 44px; font: 700 56px/.9 var(--font-title); letter-spacing: 2px; white-space: nowrap; }
@@ -25,13 +25,13 @@
 .menu__item:hover { background: rgba(255, 214, 0, .25); }
 .menu__icon { flex: none; display: grid; place-items: center; width: 34px; height: 34px; background: #fff; border: 2.5px solid var(--ink); border-radius: 6px 9px 5px 8px; font-size: 19px; transition: box-shadow .25s, border-color .25s; }
 .menu__short { display: none; }
-/* подчёркивание активного пункта «дорисовывается» */
+/* the active item underline is "drawn in" */
 .menu__item::after { content: ''; position: absolute; left: 56px; right: 18px; bottom: 1px; height: 4px; border-radius: 4px; background: var(--red); transform: rotate(-1.5deg) scaleX(0); transform-origin: left; transition: transform .35s ease; }
 .menu__item.is-active { color: var(--red); }
 .menu__item.is-active::after { transform: rotate(-1.5deg) scaleX(1); }
 .menu__item.is-active .menu__icon { border-color: var(--red); box-shadow: 3px 3px 0 var(--red); }
 
-/* стикер внизу меню: состояние сессии */
+/* sticker at the bottom of the menu: session state */
 .side-note { margin-top: auto; padding: 18px 16px 14px; background: var(--note-yellow); box-shadow: var(--shadow-note); transform: rotate(-2deg); font: 700 20px/1.2 var(--font-hand); position: relative; }
 .side-note .tape { width: 70px; margin-left: -35px; }
 .side-note b { display: block; font-size: 24px; }
@@ -40,7 +40,7 @@
 .live-dot.is-off { background: #b4bcc4; }
 @keyframes blink { 50% { opacity: .25; } }
 
-/* ---------- Контент ---------- */
+/* ---------- Content ---------- */
 .view { padding: 40px 54px 60px 70px; max-width: 1360px; width: 100%; }
 .view.is-entering { animation: page-in .35s ease; }
 @keyframes page-in { from { opacity: 0; transform: translateY(10px); } }
@@ -48,7 +48,7 @@
 .offline-banner { position: fixed; top: 14px; left: 50%; transform: translateX(-50%) rotate(-1deg); z-index: 90; padding: 8px 18px; background: var(--note-pink); box-shadow: var(--shadow-note); font: 700 21px var(--font-hand); color: #9b1c22; }
 
 /* ==========================================================================
-   Телефон и узкие окна
+   Phones and narrow windows
    ========================================================================== */
 @media (max-width: 900px) {
   :root { --sidebar-w: 0px; }
@@ -57,7 +57,7 @@
   .sidebar::before, .side-note { display: none; }
   .logo { margin-bottom: 14px; font-size: 50px; }
 
-  /* меню превращается в нижнюю панель — как в мобильном макете */
+  /* the menu turns into a bottom bar, as in the mobile mockup */
   .menu {
     position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 50;
     display: flex; gap: 0; padding: 8px; background: var(--paper);
