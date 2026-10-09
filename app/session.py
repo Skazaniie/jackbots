@@ -7,7 +7,7 @@ import time
 
 from . import store
 from .games import GAMES, TAG_ALIASES
-from .jackbox import RoomError, open_traffic_log, room_info
+from .jackbox import RoomError, open_traffic_log, room_info, twitch_token
 from .lang import GAME_TITLES, ui, ui_lang
 
 
@@ -72,6 +72,13 @@ class Session:
             bots = [b for b in bots if b["id"] in bot_ids]
         if not bots:
             raise RoomError(ui("No enabled bots for this game."))
+        skipped = []
+        if info.get("twitchLocked"):
+            # the room only lets in players signed in with Twitch: bots without a token would be rejected anyway
+            skipped = [b["name"] for b in bots if not twitch_token(b.get("twitch_token"))]
+            bots = [b for b in bots if twitch_token(b.get("twitch_token"))]
+            if not bots:
+                raise RoomError(ui("This room requires Twitch sign-in. Add a Twitch token to the bots (Bots → Twitch account)."))
         self.code, self.tag = code, tag
         self.game_language = settings.get("game_language", "auto")
         self.host = info.get("host") or settings["ecast_host"]
@@ -79,6 +86,9 @@ class Session:
         self.hub.once.clear()
         self.started = time.time()
         self.emit("info", text=ui("Room {code}: {game}. Starting bots: {n}", code=code, game=titles[tag], n=len(bots)))
+        if skipped:
+            self.emit("info", text=ui("The room requires Twitch sign-in, bots without a token stay out: {names}",
+                                      names=", ".join(skipped)))
         # warm up provider connections in parallel with joining the game
         provs = {b["provider"] for b in bots}
         for pid in provs:

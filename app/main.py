@@ -176,6 +176,19 @@ async def room(code: str):
     return {**info, "appTag": tag, "supported": tag in GAMES, "title": GAME_TITLES[ui_lang()].get(tag)}
 
 
+@app.post("/api/twitch/check")
+async def twitch_check(data: dict | None = Body(None)):
+    """Checks a bot's Twitch token; accepts the bare token or the pasted jackbox.tv/#access_token=... URL."""
+    from .jackbox import TwitchError, twitch_check as check, twitch_token
+    clean = twitch_token(str((data or {}).get("token") or ""))
+    try:
+        return {"ok": True, "token": clean, **(await check(clean))}
+    except TwitchError as e:
+        return {"ok": False, "error": str(e)}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"[:200]}
+
+
 @app.post("/api/session/start")
 async def start(code: str = Body(...), bot_ids: list[str] | None = Body(None)):
     try:

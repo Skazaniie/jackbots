@@ -4,6 +4,7 @@ The bot sees only what the game sends to a regular player's phone: the same data
 """
 import asyncio
 import json
+import re
 import time
 import uuid
 from urllib.parse import urlencode
@@ -29,6 +30,43 @@ async def room_info(code, host):
     return body
 
 
+# Twitch sign-in for bots, done the same way as on jackbox.tv: the game accepts a user access token
+# issued to the public jackbox.tv Twitch app and sent as the twitch-token connect parameter.
+TWITCH_CLIENT_ID = "yn2iepd23vskpmkzgeg2lkfsct7gsc"
+TWITCH_LOGIN_URL = ("https://id.twitch.tv/oauth2/authorize?client_id=" + TWITCH_CLIENT_ID +
+                    "&redirect_uri=https://jackbox.tv&response_type=token&scope=user:read:email&force_verify=true")
+
+
+class TwitchError(Exception):
+    pass
+
+
+def twitch_token(raw):
+    """Token from what the user pasted: the bare token, "oauth:<token>" or the whole jackbox.tv/#access_token=... URL."""
+    raw = (raw or "").strip()
+    m = re.search(r"access_token=([^&#\s]+)", raw)
+    if m:
+        raw = m.group(1)
+    if raw.lower().startswith("oauth:"):
+        raw = raw[6:]
+    return raw if re.fullmatch(r"[A-Za-z0-9]{20,64}", raw) else ""
+
+
+async def twitch_check(token):
+    """Validates a token with Twitch. Returns {login, expires_in}; raises TwitchError."""
+    if not token:
+        raise TwitchError(ui("Paste the token or the whole address of the page Twitch sent you to."))
+    async with httpx.AsyncClient(timeout=8) as c:
+        r = await c.get("https://id.twitch.tv/oauth2/validate", headers={"Authorization": f"OAuth {token}"})
+    if r.status_code == 401:
+        raise TwitchError(ui("Twitch rejected the token: it is wrong or expired. Get a new one."))
+    r.raise_for_status()
+    data = r.json()
+    if data.get("client_id") != TWITCH_CLIENT_ID:
+        raise TwitchError(ui("This token was issued to another app; the game only accepts tokens from the “get token” link."))
+    return {"login": data.get("login", ""), "expires_in": data.get("expires_in")}
+
+
 def stable_user_id(code, bot_id):
     """The same user-id for a bot in the room: on restart the game reconnects
     the previous player (with their VIP and character) instead of creating a "ghost" with a new name."""
@@ -36,7 +74,7 @@ def stable_user_id(code, bot_id):
 
 
 class EcastClient:
-    def __init__(self, code, name, host, on_entity, on_status, traffic_log=None, user_id=None):
+    def __init__(self, code, name, host, on_entity, on_status, traffic_log=None, user_id=None, twitch_token=None):
         self.code = code.upper()
         self.name = name[:12]
         self.host = host
@@ -49,9 +87,13 @@ class EcastClient:
         self.closing = False
         self.welcomed = False
         self.log = traffic_log
+        self.twitch_token = twitch_token
 
     def _url(self):
-        q = urlencode({"role": "player", "name": self.name, "format": "json", "user-id": self.user_id})
+        params = {"role": "player", "name": self.name, "format": "json", "user-id": self.user_id}
+        if self.twitch_token:
+            params["twitch-token"] = self.twitch_token
+        q = urlencode(params)
         return f"wss://{self.host}/api/v2/rooms/{self.code}/play?{q}"
 
     async def run(self):

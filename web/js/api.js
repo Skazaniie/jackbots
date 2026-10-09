@@ -58,5 +58,6 @@ export const api = {
   startGame: () => post('session/startgame'),
 
   /** One request to the bot's model. Returns { ok, text, ms, ttft } or { ok:false, error }. */
+  twitchCheck: token => post('twitch/check', { token }),
   ask: ({ botId, game, phase, vars, lang }) => post('ask', { bot_id: botId, game, phase, vars, lang }),
 };

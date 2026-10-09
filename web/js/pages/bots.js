@@ -12,6 +12,9 @@ import { confirmDialog, toast, toastError, withBusy } from '../ui.js';
 
 const NEW_CARD = { id: '__new' };
 // sample task from app/prompts.py (SAMPLES), in the game version language the server answered with
+// same as TWITCH_LOGIN_URL in app/jackbox.py: the public jackbox.tv Twitch app, Twitch returns to jackbox.tv/#access_token=...
+const TWITCH_LOGIN_URL = 'https://id.twitch.tv/oauth2/authorize?client_id=yn2iepd23vskpmkzgeg2lkfsct7gsc'
+  + '&redirect_uri=https://jackbox.tv&response_type=token&scope=user:read:email&force_verify=true';
 const SAMPLE_TASK = { en: 'The worst thing to say on a first date', ru: 'Худшее, что можно сказать на первом свидании' };
 
 function newBot(index, providers) {
@@ -163,6 +166,16 @@ export default {
             <div class="range-legend"><span>${t('predictable')}</span><span>${t('crazy')}</span></div>
           </div>
 
+          <div class="field">
+            <label for="bot-twitch">${t('Twitch account')}</label>
+            <div class="twitch-row">
+              <input class="input mono" id="bot-twitch" name="twitch_token" type="password" value="${bot.twitch_token || ''}"
+                placeholder="${t('not signed in')}" autocomplete="off" spellcheck="false">
+              <button class="btn btn--small" type="button" data-action="twitch">${t('check')}</button>
+            </div>
+            <small>${t('optional, for rooms that require Twitch.')} <a href="${TWITCH_LOGIN_URL}" target="_blank" rel="noopener">${t('Get a token')}</a>${t(': sign in as the bot, then paste the whole address of the jackbox.tv page you land on.')}</small>
+          </div>
+
           <fieldset class="field">
             <legend class="label">${t('Plays')}</legend>
             ${GAMES.map(g => html`
@@ -193,6 +206,7 @@ export default {
       else if (name === 'name') bot.name = input.value.trim().slice(0, 12);
       else if (name === 'persona') bot.persona = input.value.trim();
       else if (name === 'model') bot.model = input.value.trim();
+      else if (name === 'twitch_token') bot.twitch_token = input.value.trim();
       else if (name === 'color') bot.color = input.value;
       else if (name === 'provider') {
         bot.provider = input.value;
@@ -213,6 +227,7 @@ export default {
       const action = e.target.closest('[data-action]')?.dataset.action;
       if (action === 'delete') removeCurrent();
       if (action === 'try') withBusy(e.target.closest('button'), tryBot);
+      if (action === 'twitch') withBusy(e.target.closest('button'), checkTwitch);
     });
 
     async function removeCurrent() {
@@ -223,6 +238,20 @@ export default {
       if (wasSaved) await persist(saved.filter(b => b.id !== bot.id), false);
       select(draft[0]?.id ?? null);
       toast(t('Bot deleted'));
+    }
+
+    /** Validate the Twitch token with Twitch; a pasted jackbox.tv URL is reduced to the bare token. */
+    async function checkTwitch() {
+      const bot = current();
+      const res = await api.twitchCheck(bot.twitch_token || '');
+      if (res.ok) {
+        bot.twitch_token = res.token;
+        r.form.elements.twitch_token.value = res.token;
+      }
+      const days = res.ok && res.expires_in ? Math.round(res.expires_in / 86400) : null;
+      r.result.innerHTML = String(res.ok
+        ? html`<div class="note is-new" style="--accent:${bot.color}"><div class="note__who">Twitch:</div><div class="note__text">${t('signed in as {login}', { login: res.login })}</div>${days !== null ? html`<div class="note__meta"><span>${t('token valid for about {n} days', { n: days })}</span></div>` : ''}</div>`
+        : html`<div class="note note--error is-new"><div class="note__who">${t('Error')}</div><div class="note__text">${res.error}</div></div>`);
     }
 
     async function tryBot() {

@@ -192,6 +192,16 @@ UI_RU = {
     "The game has already started — new players can't join. Start the bots in the lobby.":
         "Игра уже идёт — новые игроки не могут войти. Запусти ботов в лобби.",
     "No enabled bots for this game.": "Нет включённых ботов для этой игры.",
+    "Paste the token or the whole address of the page Twitch sent you to.":
+        "Вставь токен или весь адрес страницы, на которую тебя вернул Twitch.",
+    "Twitch rejected the token: it is wrong or expired. Get a new one.":
+        "Twitch не принял токен: он неверный или истёк. Получи новый.",
+    "This token was issued to another app; the game only accepts tokens from the “get token” link.":
+        "Этот токен выдан другому приложению — игра примет только токен из ссылки «получить токен».",
+    "This room requires Twitch sign-in. Add a Twitch token to the bots (Bots → Twitch account).":
+        "Комната пускает только с входом через Twitch. Добавь ботам токен (Боты → Аккаунт Twitch).",
+    "The room requires Twitch sign-in, bots without a token stay out: {names}":
+        "Комната требует вход через Twitch, боты без токена не заходят: {names}",
     "Room {code}: {game}. Starting bots: {n}": "Комната {code}: {game}. Запускаю ботов: {n}",
     "Bots stopped": "Боты остановлены",
     "{name} pressed “Everybody's in”": "{name} нажал «Все в сборе»",

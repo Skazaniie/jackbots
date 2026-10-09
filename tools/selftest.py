@@ -133,6 +133,7 @@ async def main():
     assert b["a"] == 1 and b["reasoning_effort"] == "none", b
     await check_english()
     await check_reconnect_limit()
+    check_twitch()
     print("OK — все проверки пройдены")
 
 
@@ -344,5 +345,21 @@ async def check_reconnect_limit():
     assert statuses[-1] == "gone", statuses
     print("reconnect limit:", len(attempts), "попыток, статус", statuses[-1])
 
+
+
+def check_twitch():
+    """Twitch token: parsed from a pasted URL and sent as twitch-token only when set."""
+    from urllib.parse import parse_qs, urlsplit
+    from app import jackbox
+    tok = "abcdefghij0123456789klmnopqrst"
+    assert jackbox.twitch_token(f"https://jackbox.tv/#access_token={tok}&scope=user%3Aread%3Aemail&token_type=bearer") == tok
+    assert jackbox.twitch_token(f" oauth:{tok} ") == tok and jackbox.twitch_token("not a token") == ""
+
+    async def nop(*a):
+        pass
+    with_tok = jackbox.EcastClient("TEST", "bot", "h", nop, nop, twitch_token=tok)._url()
+    assert parse_qs(urlsplit(with_tok).query)["twitch-token"] == [tok], with_tok
+    assert "twitch-token" not in jackbox.EcastClient("TEST", "bot", "h", nop, nop)._url()
+    print("twitch token: ok")
 
 asyncio.run(main())

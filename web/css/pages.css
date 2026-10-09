@@ -77,6 +77,9 @@ legend { margin-bottom: 6px; }
 .swatch input:checked + i { transform: scale(1.15) rotate(-8deg); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5.5px var(--ink); }
 .swatch input:focus-visible + i, .icon-pick input:focus-visible + img { outline: 3px dashed var(--blue); outline-offset: 3px; }
 
+.twitch-row { display: flex; gap: 10px; align-items: center; }
+.twitch-row .input { flex: 1; min-width: 0; }
+
 /* ---------- Providers ---------- */
 .provider-list { padding: 14px 18px; }
 .provider-row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 8px; text-align: left; border-bottom: 2px dashed rgba(34, 48, 63, .22); border-radius: 8px; transition: background-color .2s; }

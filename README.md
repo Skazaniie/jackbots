@@ -108,6 +108,12 @@ Each bot has its own name (shown in the game), model, personality and "imaginati
 The personality goes into the prompt, so a "grandma", a "nerd" and a "stand-up comic" answer differently.
 Here you also choose which games a bot plays and turn on vision for models that understand pictures.
 
+**Twitch account (optional).** For rooms that only let in players signed in with Twitch, give a bot its own Twitch
+account: register it on Twitch, press "Get a token" in the bot editor, sign in as the bot and paste the whole address of the
+jackbox.tv page you land on (`https://jackbox.tv/#access_token=…`) into the field, then press "Check" and "Save".
+Sign out of your own Twitch account first (or use a private window), otherwise Twitch signs in as you.
+The token lives only in `config/bots.json`; Twitch tokens expire after a while — then just get a new one.
+
 <img src="docs/screenshots/bots.webp" alt="Bots page: bot cards and editor">
 
 ### 3. Model test

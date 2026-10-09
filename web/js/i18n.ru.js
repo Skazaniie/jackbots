@@ -204,4 +204,12 @@ export const RU = {
   "Log game traffic": "Писать лог трафика игры",
   "logs/traffic-*.jsonl — helps to debug a game": "logs/traffic-*.jsonl — помогает разбирать ошибки",
   "There are unsaved settings. Leave without saving?": "Есть несохранённые настройки. Уйти без сохранения?",
+  "Twitch account": "Аккаунт Twitch",
+  "not signed in": "без входа",
+  "check": "проверить",
+  "optional, for rooms that require Twitch.": "необязательно, для комнат с входом через Twitch.",
+  "Get a token": "Получить токен",
+  ": sign in as the bot, then paste the whole address of the jackbox.tv page you land on.": ": войди в Twitch-аккаунт бота и вставь сюда весь адрес страницы jackbox.tv, на которую попадёшь.",
+  "signed in as {login}": "вход выполнен: {login}",
+  "token valid for about {n} days": "токен действует ещё ~{n} дн.",
 };

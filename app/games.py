@@ -10,7 +10,7 @@ import re
 import time
 
 from . import store
-from .jackbox import EcastClient, stable_user_id
+from .jackbox import EcastClient, stable_user_id, twitch_token
 from .lang import GAME_TITLES as TITLES, TEXT, detect, latin_name, latin_safe, ui
 from .llm import LLMError
 from .prompts import LANGS, VAR_ALIASES
@@ -82,7 +82,8 @@ class BotPlayer:
         # the English client accepts only Latin letters in a nickname, otherwise the name becomes empty/"????"
         nick = latin_name(cfg["name"]) if mode == "en" else cfg["name"]
         self.client = EcastClient(session.code, nick, session.host, self.on_entity, self.on_status,
-                                  session.traffic, user_id=stable_user_id(session.code, cfg["id"]))
+                                  session.traffic, user_id=stable_user_id(session.code, cfg["id"]),
+                                  twitch_token=twitch_token(cfg.get("twitch_token")) or None)
 
     # ---------- connection ----------
     @property
